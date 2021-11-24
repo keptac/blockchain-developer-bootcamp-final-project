@@ -11,7 +11,7 @@ import "./ContractEstate.sol";
 /// @author Kelvin Chelenje
 /// @dev This contract is used to list new properties on to the Real Estate NFT Market
 /// @dev _propertyListingId is an auto incremental id to identify the position on the market place
-/// @dev Uses Counters library for tracking properties deeds for properties listed and number of properties Sold.
+/// @dev  Counters library is being used for tracking properties deeds for properties listed and number of properties Sold.
 contract SmartProperty is Ownable, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _propertyListingId;
@@ -25,6 +25,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     constructor() {
         buyer = payable(msg.sender);
     }
+
 
     struct Property {
         uint256 propertyListingId;
@@ -93,9 +94,9 @@ contract SmartProperty is Ownable, ReentrancyGuard {
         uint256 deedNumber = propertyData[propertyListingId].deedNumber;
         uint256 propertyValue = propertyData[propertyListingId].propertyValue;
 
-        require(contractEastateNft._exists(deedNumber), "Error, Property not found");
+        require(contractEastateNft.checkIfPropertyExists(deedNumber), "Error, Property not found");
         require(!propertyData[propertyListingId].sold, "Purchase failed, property is not for sale");
-        require(msg.value == propertyValue, "Value entered is below property value of "+propertyValue+". Please submit the price required in order to buy this property.");
+        require(msg.value == propertyValue, 'Value entered is below property value of ${propertyValue}. Please submit the price required in order to buy this property.');
 
         (bool success, ) = propertyData[propertyListingId].seller.call{value: msg.value}("");
         require(success, "Transfer failed");
@@ -107,14 +108,6 @@ contract SmartProperty is Ownable, ReentrancyGuard {
         _propertiesSold.increment();
 
         emit Purchase(propertyData[propertyListingId].seller, msg.sender, msg.value, deedNumber);
-    }
-
-
-    ///@notice check if the customer is the true owner of a property
-    function verifyPropertyOwnership(uint propertyListingId, address userAddress) public view returns(bool){
-        if (propertyData[propertyListingId].buyer == userAddress){
-            return true;
-        }
     }
 
     /// @notice Returns the details of the properties owned by the customer
@@ -132,7 +125,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
 
         Property[] memory customerProperties = new Property[](numberOfProperties);
 
-        for (uint i = 0; i < totalItemCount; i++) {
+        for (uint i = 0; i < numberOfProperties; i++) {
             if (propertyData[i].buyer == msg.sender) {
                 uint currentId = i;
                 // Property storage currentItem = propertyData[currentId];
@@ -172,6 +165,8 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     function verifyPropertyOwnership(uint propertyListingId, address userAddress) public view returns(bool){
         if (propertyData[propertyListingId].buyer == userAddress){
             return true;
+        }else{
+            return false;
         }
     }
 
@@ -187,6 +182,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     /// @return Property Details
     function findPropertyByDeed(uint256 deedNumber) public view returns(Property memory) {
         uint positionIndex;
+        uint propertyCount = _propertyListingId.current();
         for (uint i = 0; i < propertyCount; i++) {
             if (propertyData[i].deedNumber == deedNumber) {
                 positionIndex = i;

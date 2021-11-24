@@ -7,15 +7,17 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract ContractEstate is ERC721URIStorage, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private deedNumber;
+    // using Counters for Counters.Counter;
+    uint256 private _tokenCounter;
+
+    mapping(uint256=>uint256) private counterToDeed;
 
     address contractAddress;
 
     address payable public _owner;
-    mapping(uint256 => PropertyNft) private propertyNftData;
+    mapping(uint256 => propertyNft) private propertyNftData;
 
-    struct PropertyNft {
+    struct propertyNft {
         uint256 deedNumber;
         address  owner;
         string tokenUri;
@@ -28,21 +30,58 @@ contract ContractEstate is ERC721URIStorage, Ownable {
     }
 
     /// @notice Mints a new property NFT token
-    /// @param tokenLink is the ipfs URI for the NFT
+    /// @param tokenURI is the ipfs URI for the NFT
     /// @param _price is the property Value. Its passed by the caller from the ipfs metadata
     /// @param _deed is the deed number to identify the Property (TokenID). Its passed by the caller. Its a from the ipfs metadata
     /// @return uint256 The deed  of the minted NFT
-    function createPropertyNft( string memory tokenLink, uint256 _price, uint256 _deed)
+    function createPropertyNft( string memory tokenURI, uint256 _price, uint256 _deed)
         public onlyOwner
         returns (uint256)
     {
+        require(_price>0);
+        require(_deed>0);
 
         _safeMint(msg.sender, _deed);
-        _setTokenURI(_deed, tokenLink);
+        _setTokenURI(_deed, tokenURI);
         setApprovalForAll(contractAddress, true);
 
-        propertyNftData[_deed] = PropertyNft(_deed, msg.sender, tokenLink, _price); //get price from ipfs
+        counterToDeed[_tokenCounter] = _deed;
+        
+        propertyNftData[_deed] = propertyNft(_deed, msg.sender, tokenURI, _price); //get price from ipfs
+        _tokenCounter++;
 
         return _deed;
     }
+
+    function checkIfPropertyExists(uint256 deed) public view returns(bool){
+        return _exists(deed);
+    }
+
+    /// @notice Gets the tokenURI of the NFT owned by the caller
+    /// @return nftProperty[] The array containing the tokenId, owner and tokenURI of the NFT owned by the caller    
+    function getUserProperties() public view returns(propertyNft[] memory) {
+        uint totalPropertyCount = _tokenCounter;
+        uint itemCount = 0;
+        uint currentIndex = 0;
+
+        for (uint i = 0; i < totalPropertyCount; i++) {
+            if (propertyNftData[counterToDeed[i]].owner == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        propertyNft[] memory properties = new propertyNft[](itemCount);
+
+        for (uint i = 0; i < itemCount; i++) {
+            if (propertyNftData[counterToDeed[i]].owner == msg.sender) {
+                uint currentId = counterToDeed[i];
+                propertyNft storage currentProperty = propertyNftData[currentId];
+                properties[currentIndex] = currentProperty;
+                currentIndex += 1;
+            }
+        }
+
+        return properties;
+    }
+
 }
