@@ -22,9 +22,9 @@ contract ContractEstate is ERC721URIStorage, Ownable {
         uint256 price;
     }
 
-    constructor(address marketplaceAddress)  ERC721("ESTATE CONTRACT CHAIN", "ECC") {
+    constructor(address smartPropertyMarket)  ERC721("ESTATE CONTRACT CHAIN", "ECC") {
         _owner = payable(msg.sender);
-        contractAddress = marketplaceAddress;
+        contractAddress = smartPropertyMarket;
     }
 
     /// @notice Mints a new property NFT token
