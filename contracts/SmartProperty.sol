@@ -83,7 +83,6 @@ contract SmartProperty is Ownable, ReentrancyGuard {
             false
         );
     }
-
     /// @dev Transfer the property value amount from the buyer to the seller of the property.
     /// @dev Transfers the deeds from the Smart Property contract to the buyer
     /// @param propertyListingId Listing ID of the property on the real estate market place
@@ -94,6 +93,8 @@ contract SmartProperty is Ownable, ReentrancyGuard {
         uint256 deedNumber = propertyData[propertyListingId].deedNumber;
         uint256 propertyValue = propertyData[propertyListingId].propertyValue;
 
+        require(contractEastateNft._exists(deedNumber), "Error, Property not found");
+        require(!propertyData[propertyListingId].sold, "Purchase failed, property is not for sale");
         require(msg.value == propertyValue, "Value entered is below property value of "+propertyValue+". Please submit the price required in order to buy this property.");
 
         (bool success, ) = propertyData[propertyListingId].seller.call{value: msg.value}("");
@@ -185,7 +186,14 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     /// @param deedNumber property deed
     /// @return Property Details
     function findPropertyByDeed(uint256 deedNumber) public view returns(Property memory) {
-        return propertyData[deedNumber];
+        uint positionIndex;
+        for (uint i = 0; i < propertyCount; i++) {
+            if (propertyData[i].deedNumber == deedNumber) {
+                positionIndex = i;
+            }
+        }
+        require(positionIndex>=0);
+        return propertyData[positionIndex];
     }
 
     ///@dev receive() and fallback() functions to allow the contract to receive ETH and data  
