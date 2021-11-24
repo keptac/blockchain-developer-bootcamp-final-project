@@ -1,33 +1,57 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-contract Migrations {
-    address public owner = msg.sender;
-    uint public last_completed_migration;
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-    modifier onlyOwner() {
-        require(
-        msg.sender == owner,
-        "This function is restricted to the contract's owner"
-        );
-        _;
+contract ContractEstate is ERC721, Ownable {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
+    address payable public _owner;
+    mapping(uint256 => bool) public sold;
+    mapping(uint256 => uint256) public price;
+
+    event Purchase(address owner, uint256 price, uint256 id, string uri);
+
+    constructor()  ERC721("SOCIETY CHAIN", "STC") {
+        _owner = payable(msg.sender);
     }
 
-    function buyProperty() public payable{
+    function mintNFT(address recipient, string memory tokenURI, uint256 _price)
+        public onlyOwner
+        returns (uint256)
+    {
+        _tokenIds.increment();
+
+        uint256 newItemId = _tokenIds.current();
+        price[newItemId] = _price; //obtained fro ipfs on mint
+        _mint(recipient, newItemId);
+        _setTokenURI(newItemId, tokenURI);
+
+        return newItemId;
     }
 
-    function sellProperty(uint propertyId) public {
+    function buy(uint256 _id) external payable {
+        _validate(_id);
+        _trade(_id);
+
+        emit Purchase(msg.sender, price[_id], _id, tokenURI(_id));
     }
 
-    function getPropertiesOwnedByUser(address userAddress) public {
+    function _validate(uint256 _id) internal {
+        require(_exists(_id), "Error, wrong Token id");
+        require(!sold[_id], "Error, Token is sold");
+        require(msg.value >= price[_id], "Error, Token costs more");
     }
 
-    function transferOwnership(address from, uint propertyId, address to) internal {
-    }
-
-    function verifyPropertyOwnership(uint propertyId, address userAddress) public returns(bool){
-    }
-
-    function shareOwnership() public {
+    function _trade(uint256 _id) internal {
+        // safeTransferFrom
+        _transfer(address(this), msg.sender, _id);
+        _owner.transfer(msg.value);
+        sold[_id] = true;
     }
 }
