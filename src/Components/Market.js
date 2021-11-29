@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-// import Web3 from 'web3';
 import ItemThumb from './ItemThumb';
-import { Columns } from 'react-bulma-components';
 
-// const Market = ({contract, propertyNft, ipfsGateway, limit}) => {
   class Market extends Component {
     
 
@@ -39,9 +36,9 @@ import { Columns } from 'react-bulma-components';
           
           if(metadataUri!=='http://localhost:3000/logo-sample.png'){
             const newItem = (
-              <Columns.Column key={property.propertyListingId}>
-                <ItemThumb metadataUri={metadataUri} ipfsGateway={this.props.ipfsGateway} />
-              </Columns.Column>
+              <div className="col-md-3 mb-4" key={property.propertyListingId}>
+                <ItemThumb metadataUri={metadataUri} listingId={property.propertyListingId} />
+              </div>
             );
   
              newProperties.push(newItem);
@@ -56,9 +53,9 @@ import { Columns } from 'react-bulma-components';
 
   render() {
   return (
-    <Columns>
+    <div className="row">
       {this.state.marketProperties}
-    </Columns>
+    </div>
   );}
 };
 

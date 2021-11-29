@@ -4,27 +4,7 @@ import ContractEstate from '../abis/ContractEstate.json';
 
 const { create } = require("ipfs-http-client");
 
-const client = create({
-  host: "ipfs.infura.io",
-  port: 5001,
-  protocol: "https",
-  path: "api/v0",
-});
-
-const projectId = '21bdLMEhSdbrDhVO8e2FOxrbqyg'
-const projectSecret = 'a94b50bfc6b0aff9bd7916ac839a3f32'
-const auth =
-  'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64')
-
-const client2 = create({
-  host: 'ipfs.infura.io',
-  port: 5001,
-  protocol: 'https',
-  path: "api/v0",
-  headers: {
-    authorization: auth
-  }
-})
+const client = create("https://ipfs.infura.io:5001/api/v0");
 
   class PropertySell extends Component {
     async componentDidMount() {
@@ -113,13 +93,15 @@ const client2 = create({
                   const metadataRes = await client.add(JSON.stringify(metadata));
                   const tokenURI = `https://ipfs.infura.io/ipfs/${metadataRes.path}`;
 
+                  // client2.pin.add(metadataRes.path).then((res) => {
+                  //   console.log(res)
+                  // });
+
                   try {
                     await this.state.contractEstate.methods.createPropertyNft(tokenURI, price, deed).send({from:this.state.account}).on('transactionHash', async (hash) => {
                       await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.marketAddress ).send({from:this.state.account});
                     });
-                    client2.pin.add(metadataRes.path).then((res) => {
-                      console.log(res)
-                    });
+                  
                   }catch (e) {
                     console.log("error uploading to minting NFT", e);
                   }
@@ -195,15 +177,6 @@ const client2 = create({
 
               <button type="submit" className="btn btn-primary btn-block btn-lg">Submit</button>
             </form>
-            {/* <button
-              type="submit"
-              className="btn btn-link btn-block btn-sm"
-              onClick={(event) => {
-                event.preventDefault()
-                this.props.unstakeTokens()
-              }}>
-                UN-STAKE...
-              </button> */}
           </div>
         </div>
 

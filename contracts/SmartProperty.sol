@@ -55,7 +55,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     function listPropertyOnEstateMarket(
         uint256 deedNumber, 
         uint256 propertyValue,
-        address estatePropertyNft) 
+        address ownerAddress) 
         public payable nonReentrant {
         
         // Add a requirement to check the NFT Meta data owner with msg.sender
@@ -72,7 +72,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
             payable(address(this))
         );
 
-        ERC721(estatePropertyNft).transferFrom(msg.sender, address(this), deedNumber);
+        ERC721(ownerAddress).transferFrom(msg.sender, address(this), deedNumber);
 
         _propertyListingId.increment();
 
@@ -90,7 +90,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     /// @param propertyListingId Listing ID of the property on the real estate market place
     function sellPropertytoBuyer(
         uint256 propertyListingId,
-        address estatePropertyNft
+        address ownerAddress
         ) public payable nonReentrant {
 
         uint256 deedNumber = propertyData[propertyListingId].deedNumber;
@@ -103,7 +103,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
         (bool success, ) = propertyData[propertyListingId].seller.call{value: msg.value}("");
         require(success, "Transfer failed");
 
-        ERC721(estatePropertyNft).transferFrom(address(this), msg.sender, deedNumber);
+        ERC721(ownerAddress).transferFrom(address(this), msg.sender, deedNumber);
 
         propertyData[propertyListingId].buyer = payable(msg.sender);
         propertyData[propertyListingId].sold = true;

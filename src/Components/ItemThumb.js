@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import styled from 'styled-components';
 import { Box, Image } from 'react-bulma-components';
+import SmartProperty from '../abis/SmartProperty.json';
+import ContractEstate from '../abis/ContractEstate.json';
 
 
 const Title = styled.h2({
@@ -15,45 +16,83 @@ const Details = styled.h5({
   color: "#292A2D"
 });
 
-const ItemThumb = ({metadataUri, ipfsGateway}) => {
+const ItemThumb = ({metadataUri, listingId}) => {
   const [title, setTitle] = useState(`Loading...`);
-  const [vintage, setVintage] = useState(`Loading...`);
-  const [author, setAuthor] = useState(`Loading...`);
+  const [location, setLocation] = useState(`Loading...`);
+  const [price, setPrice] = useState(`Loading...`);
+  const [description, setDescription] = useState(`Loading...`);
+  const [propertySize, setPropertySize] = useState(`Loading...`);
   const [imageUrl, setImageUrl] = useState(`/`);
-  const [thumbnailUrl, setThumbnailUrl] = useState(``);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const [account, setBuyerAccount] = useState('');
+  const [smartPropertyMarket, setSmartPropertyMarketInstance] = useState({});
+
+  const [nftAddress, setNftAddress] = useState('');
+  const [marketAddress, setMarketAddress] = useState('');
+
   const getMetadata = async () => {
     try {
-      const res = await fetch(`${metadataUri}`);
+      const res = await fetch(metadataUri);
       const metadata = await res.json();
-
-      setTitle(metadata.title);
-      setVintage((new Date(metadata.vintage)).getFullYear());
-      setAuthor(metadata.author);
-      setImageUrl(`${ipfsGateway}/${metadata.thumbnail}`);
-      setThumbnailUrl(`/item/${metadata.media}`)
+      setTitle(metadata.deed);
+      setLocation(metadata.location);
+      setDescription(metadata.description);
+      setPropertySize(metadata.propertySize);
+      setPrice(window.web3.utils.fromWei(metadata.price, 'Ether'));
+      setImageUrl(`${metadata.image}`);
 
     } catch (err) {
       console.log(err)
     }
   }
 
+  const loadBlockchainData = async () =>{
+
+    const web3 = window.web3
+
+    const accounts = await web3.eth.getAccounts();
+    const networkId = await web3.eth.net.getId();
+
+    const smartPropertyMarketData = SmartProperty.networks[networkId];
+    const contractEstateData = ContractEstate.networks[networkId];
+    const smartPropertyMarketTemp = new web3.eth.Contract(SmartProperty.abi, smartPropertyMarketData.address);
+
+    setBuyerAccount(accounts[0]);
+    setSmartPropertyMarketInstance(smartPropertyMarketTemp);
+    setNftAddress(contractEstateData.address);
+    setMarketAddress(smartPropertyMarketData.address);
+  }
+
   useEffect(() => {
     getMetadata();
-  }, [getMetadata]);
+    loadBlockchainData();
+  }, [getMetadata, loadBlockchainData]);
 
   return (
-    <Link to={thumbnailUrl}>
       <Box>
         <Image 
           src={`${imageUrl}`}
-          style={{"minWidth": "100%"}}
+          style={{"minWidth": "100%", }}
         />
-        <Title>{title}</Title>
-        <Details><strong>{author}</strong>, {vintage}</Details>
+        <Title>Deed Number: {title}</Title>
+        <Details><strong>Location: </strong> {location}</Details>
+        <Details><strong>Property Size: </strong> {propertySize} m<sup>2</sup></Details>
+        <Details><strong>Price: </strong> {price} ETH</Details>
+        <Details><strong>Description: </strong> {description}</Details>
+        <br/>
+        <Details><strong>Verified</strong> </Details>
+        <br/>
+        <button type="submit" className="btn btn-warning btn-block btn-lg" onClick={async (event)  => {
+              event.preventDefault()
+
+              alert("You are about to make a purchase.");
+            try{
+              await smartPropertyMarket.methods.sellPropertytoBuyer(listingId,  marketAddress).send({ from: account, value: window.web3.utils.toWei(price, 'Ether') });
+            }catch (e) {
+              console.log("error making a purchase", e);
+            } 
+          }}>Buy Property</button>
       </Box>
-    </Link>
   );
 };
 
