@@ -17,45 +17,31 @@ const StyledLink = styled(Link)`
   return (
       <Navbar
         active={true}
-        transparent={true}
+        transparent={false}
       >
       <Navbar.Brand>
-        <Navbar.Item renderAs="span">
+        {/* <Navbar.Item renderAs="span"> */}
           <Link to="/">
-            <img src="/filecoin-box/logo.png" alt="Filecoin Gallery" width="112" height="28" />
+            <img src="logo-sample.png" alt="Contract Estate" width="112" height="150" />
           </Link>
-        </Navbar.Item>
+        {/* </Navbar.Item> */}
         <Navbar.Burger />
       </Navbar.Brand>
       <Navbar.Menu >
         <Navbar.Container>
           <Navbar.Item renderAs="span">
             <StyledLink to="/">
-              Home
+              Property Market Place
             </StyledLink>
           </Navbar.Item>
-          <Navbar.Item dropdown hoverable href="#">
-            <Navbar.Link arrowless={false}>
-              Explore
-            </Navbar.Link>
-            <Navbar.Dropdown>
-              <Navbar.Item renderAs="span">
-                <StyledLink to="/all">
-                  All Items
-                </StyledLink>
-              </Navbar.Item>
-              <Navbar.Item renderAs="span">
-                <StyledLink to="/about">
-                  About
-                </StyledLink>
-              </Navbar.Item>
-            </Navbar.Dropdown>
-          </Navbar.Item>
-        </Navbar.Container>
-        <Navbar.Container position="end">
           <Navbar.Item renderAs="span">
-            <StyledLink to="/contact">
-              Contact
+            <StyledLink to="/">
+              Sell Property
+            </StyledLink>
+          </Navbar.Item>
+          <Navbar.Item renderAs="span">
+            <StyledLink to="/">
+              Verify Ownership
             </StyledLink>
           </Navbar.Item>
         </Navbar.Container>

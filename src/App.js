@@ -15,7 +15,6 @@ import Contact from './Pages/Contact';
 import About from './Pages/About';
 
 import Navigation from './Components/Navigation';
-import Footer from './Components/Footer';
 
 import SmartProperty from './abis/SmartProperty.json';
 import ContractEstate from './abis/ContractEstate.json';
@@ -83,27 +82,22 @@ class App extends Component {
         <Route path="/" exact>
           <Navigation />
             <Home contract={this.state.smartPropertyMarket} propertyNft={this.state.contractEstate} ipfsGateway={this.state.ipfsGateway} />
-          <Footer />
         </Route>
         <Route path="/item/:itemId">
           <Navigation />
             <ItemView ipfsGateway={this.state.ipfsGateway} />
-          <Footer />
         </Route>
         <Route path="/contact">
           <Navigation />
             <Contact />
-          <Footer />
         </Route>
         <Route path="/about">
           <Navigation />
             <About />
-          <Footer />
         </Route>
         <Route path="/all">
           <Navigation />
             <AllItems contract={this.state.smartPropertyMarket} propertyNft={this.state.contractEstate} ipfsGateway={this.state.ipfsGateway} />
-          <Footer />
         </Route>
       </Switch>
     </Container>

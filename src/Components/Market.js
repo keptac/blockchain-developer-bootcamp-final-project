@@ -21,7 +21,11 @@ import { Columns } from 'react-bulma-components';
       this.state = {
         account:'',
         metadataUrl: 'loading...',
-        marketProperties:[]
+        marketProperties:[(
+          <Columns.Column >
+            <ItemThumb metadataUri={'https://ipfs.io/societychain/ipfs/QmdV8XAutRJqrXRo99AYgNcX9iG7zvSHf7C27ZsBQh6xp6?filename=1oexpression-of-interest-for-mining-proposal.pdf'} ipfsGateway={this.props.ipfsGateway} />
+          </Columns.Column>
+        )]
       }
     }
 
@@ -30,8 +34,9 @@ import { Columns } from 'react-bulma-components';
     try {
       const smartPropertyMarketContract = this.props.contract;
       const estateContractNft = this.props.propertyNft;
-
-      let allProperties = await smartPropertyMarketContract.methods.getAvailableProperties().send({from:this.state.account})
+      // let allProperties = await smartPropertyMarketContract.methods.getAvailableProperties().send({from:this.state.account})
+      
+      let allProperties = await smartPropertyMarketContract.methods.getAvailableProperties().call()
       console.log("------ ALL PROPERTIES ------>>>>>>>>");
       console.log(allProperties);
 
@@ -50,8 +55,6 @@ import { Columns } from 'react-bulma-components';
           this.setState({metadataURI: metadataUri})
         });
     } catch (err) {
-      console.log("--------ERROR ----->>>>>>>>");
-    
       console.log(err)
     }
   }

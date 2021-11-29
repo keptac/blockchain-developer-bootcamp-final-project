@@ -3,7 +3,7 @@ import { Container, Heading, Hero } from 'react-bulma-components';
 import styled from 'styled-components';
 
 const StyledHero = styled(Hero)`
-  margin-bottom: 1rem
+  margin-bottom: 3rem
 `;
 
 // const Welcome = () => {
@@ -15,10 +15,10 @@ const StyledHero = styled(Hero)`
       <Hero.Body>
         <Container>
           <Heading>
-            Filecoin Gallery
+            Welcome to Contract Estate - Smart Property
           </Heading>
-          <Heading subtitle size={5}>
-            Explore the world of decentrally stored art
+          <Heading subtitle size={9}>
+            Buy and Sell Land and Real estate Properties as NFTs
           </Heading>
         </Container>
       </Hero.Body>

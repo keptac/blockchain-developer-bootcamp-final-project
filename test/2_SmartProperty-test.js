@@ -25,7 +25,7 @@ contract('SmartProperty', function(accounts) {
 
 	// Test for listing of a Property onto Marketplace
 	it('Should be able to list a property for sale on the SmartProperty Market', async () => {
-		await SmartPropertyMarket.deployed({gas:0}).then(async function(smartPropertyMarket) {
+		await SmartPropertyMarket.deployed().then(async function(smartPropertyMarket) {
 			await ContractEstate.deployed(smartPropertyMarket.address).then(async function(estatePropertyNft){
 				await estatePropertyNft.createPropertyNft('https://ipfs.io/societychain/ipfs/QmdV8XAutRJqrXRo99AYgNcX9iG7zvSHf7C27ZsBQh6erest-for-mining-proposal.pdf', 600000000, 1292).then(function(){});
 
