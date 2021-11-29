@@ -1,3 +1,4 @@
+import React, { Component } from 'react';
 import { Navbar } from 'react-bulma-components';
 import styled from 'styled-components';
 
@@ -9,7 +10,10 @@ const StyledLink = styled(Link)`
   color: #4a4a4a;
 `;
 
-const Navigation = () => {
+// const Navigation = () => {
+  class Navigation extends Component {
+
+    render() {
   return (
       <Navbar
         active={true}
@@ -57,7 +61,7 @@ const Navigation = () => {
         </Navbar.Container>
       </Navbar.Menu>
     </Navbar>
-  );
+  );}
 };
 
 export default Navigation;

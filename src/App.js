@@ -8,8 +8,6 @@ import {
   Route,
 } from "react-router-dom";
 
-import { ethers } from "ethers";
-
 import Home from './Pages/Home';
 import ItemView from './Pages/ItemView';
 import AllItems from './Pages/AllItems';
@@ -23,7 +21,7 @@ import SmartProperty from './abis/SmartProperty.json';
 import ContractEstate from './abis/ContractEstate.json';
 
 class App extends Component {
-  async componentWillMount() {
+  async componentDidMount() {
     await this.loadWeb3()
     await this.loadBlockchainData()
   }
@@ -44,8 +42,8 @@ class App extends Component {
   async loadBlockchainData() {
     const web3 = window.web3
     const networkId = await web3.eth.net.getId()
-    const smartPropertyMarketData = SmartProperty.networks[networkId]
-    const contractEstateData = ContractEstate.networks[networkId]
+    const smartPropertyMarketData = SmartProperty.networks[networkId];
+    const contractEstateData = ContractEstate.networks[networkId];
 
     if(smartPropertyMarketData) {
       const smartPropertyMarket = new web3.eth.Contract(SmartProperty.abi, smartPropertyMarketData.address);

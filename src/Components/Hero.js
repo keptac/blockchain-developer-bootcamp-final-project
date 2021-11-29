@@ -1,3 +1,4 @@
+import React, { Component } from 'react';
 import { Container, Heading, Hero } from 'react-bulma-components';
 import styled from 'styled-components';
 
@@ -5,8 +6,10 @@ const StyledHero = styled(Hero)`
   margin-bottom: 1rem
 `;
 
+// const Welcome = () => {
+  class Welcome extends Component {
 
-const Welcome = () => {
+    render() {
   return (
     <StyledHero color="primary" gradient>
       <Hero.Body>
@@ -20,7 +23,7 @@ const Welcome = () => {
         </Container>
       </Hero.Body>
     </StyledHero>
-  );
+  );}
 };
 
 export default Welcome;

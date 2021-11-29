@@ -1,59 +1,67 @@
-import React, { useState, useEffect } from "react";
+import React, { Component } from 'react';
+// import Web3 from 'web3';
 import ItemThumb from './ItemThumb';
 import { Columns } from 'react-bulma-components';
 
-const Market = ({contract, propertyNft, ipfsGateway, limit}) => {
-  const [metadataUrl, setMetadataUrl] = useState(`Loading...`);
-  const [marketProperties, setMarketProperties] = useState([]);
+// const Market = ({contract, propertyNft, ipfsGateway, limit}) => {
+  class Market extends Component {
+    
 
-  const times = n => f => {
-    let iter = i => {
-      if (i === n) return
-      f (i)
-      iter (i + 1)
-    }
-    return iter (0)
-  }
-
-  const getSupply = async () => {
-    try {
-      const smartPropertyMarketContract = contract;
-      const estateContractNft = propertyNft;
-
-      const allProperties = await smartPropertyMarketContract.getAvailableProperties();
+    async componentDidMount() {
       
-      times (allProperties.length) (async (i) => {
-        const tokenId = allProperties[i].deedNumber;
+      const web3 = window.web3
+      const accounts = await web3.eth.getAccounts()
+      this.setState({ account: accounts[0] })
+      console.log(this)
+      await this.getSupply();
+    }
 
-        const metadataUri = await estateContractNft.tokenURI(tokenId);
+    constructor(props) {
+      super(props)
+      this.state = {
+        account:'',
+        metadataUrl: 'loading...',
+        marketProperties:[]
+      }
+    }
 
-        const newItem = (
-          <Columns.Column key={i}>
-            <ItemThumb metadataUri={metadataUri} ipfsGateway={ipfsGateway} />
-          </Columns.Column>
-        );
+  async getSupply() {
+    
+    try {
+      const smartPropertyMarketContract = this.props.contract;
+      const estateContractNft = this.props.propertyNft;
 
-        setMarketProperties((prev) => {
-          return [...prev, newItem];
-        });
+      let allProperties = await smartPropertyMarketContract.methods.getAvailableProperties().send({from:this.state.account})
+      console.log("------ ALL PROPERTIES ------>>>>>>>>");
+      console.log(allProperties);
+
+        allProperties.forEach(async property => {
+          const tokenId = property.deedNumber;
+
+          const metadataUri = await estateContractNft.tokenURI(tokenId);
   
-        setMetadataUrl(metadataUrl);
-      });
-
+          const newItem = (
+            <Columns.Column key={property.propertyListingId}>
+              <ItemThumb metadataUri={metadataUri} ipfsGateway={this.props.ipfsGateway} />
+            </Columns.Column>
+          );
+  
+          this.setState({marketProperties:this.state.marketProperties.push(newItem)})
+          this.setState({metadataURI: metadataUri})
+        });
     } catch (err) {
+      console.log("--------ERROR ----->>>>>>>>");
+    
       console.log(err)
     }
   }
 
-  useEffect(() => {
-    getSupply();
-  }, []);
-
+  render() {
   return (
     <Columns>
-      {marketProperties}
+      {this.state.marketProperties}
     </Columns>
-  );
+  );}
 };
 
 export default Market;

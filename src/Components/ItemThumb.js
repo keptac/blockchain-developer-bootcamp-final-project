@@ -3,10 +3,6 @@ import { Link } from "react-router-dom";
 import styled from 'styled-components';
 import { Box, Image } from 'react-bulma-components';
 
-const Frame = styled.img({
-  border: "solid 10px #292A2D",
-  minWidth: "100%"
-});
 
 const Title = styled.h2({
   color: "#242424",

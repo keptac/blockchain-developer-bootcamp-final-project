@@ -1,6 +1,11 @@
+import React, { Component } from 'react';
 import { Footer as BulmaFooter, Container, Content } from 'react-bulma-components';
 
-const Footer = () => {
+// const Footer = () => { 
+   class Footer extends Component {
+
+  render() {
+
   return (
         <BulmaFooter>
           <Container>
@@ -11,7 +16,7 @@ const Footer = () => {
             </Content>
           </Container>
         </BulmaFooter>
-  );
+  );}
 };
 
 export default Footer;
