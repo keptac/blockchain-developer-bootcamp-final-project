@@ -2,8 +2,8 @@ var SmartPropertyMarket = artifacts.require("./SmartProperty.sol");
 var ContractEstate = artifacts.require("./ContractEstate.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(SmartPropertyMarket).then(function() {
-    return deployer.deploy(ContractEstate, SmartPropertyMarket.address);
+  deployer.deploy(SmartPropertyMarket, {gas: 6721975}).then(function() {
+    return deployer.deploy(ContractEstate, SmartPropertyMarket.address, {gas: 6721975});
   });
 };
 

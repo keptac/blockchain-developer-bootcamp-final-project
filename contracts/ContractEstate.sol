@@ -35,7 +35,7 @@ contract ContractEstate is ERC721URIStorage, Ownable {
     /// @param _deed is the deed number to identify the Property (TokenID). Its passed by the caller. Its a from the ipfs metadata
     /// @return uint256 The deed  of the minted NFT
     function createPropertyNft( string memory tokenURI, uint256 _price, uint256 _deed)
-        public onlyOwner
+        public 
         returns (uint256)
     {
         require(_price>0);

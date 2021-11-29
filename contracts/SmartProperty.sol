@@ -17,7 +17,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     Counters.Counter private _propertyListingId;
     Counters.Counter private _propertiesSold;
 
-    ContractEstate public contractEastateNft;
+    ContractEstate public directestatePropertyNft;
 
     address payable buyer;
     mapping(uint256 => Property) private propertyData;
@@ -45,7 +45,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
         bool sold
     );
 
-    event Purchase(address seller, address buyer, uint256 price, uint256 deed);
+    event Purchase(address seller, address buyer, uint256 price, uint256 deed, bool sold);
 
     /// @notice lists a seller's property on the real estate market
     /// @dev transfers the property from seller(buyer) to the Smart Property Contract
@@ -54,7 +54,8 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     /// @param propertyValue Price of the Property specified by the seller
     function listPropertyOnEstateMarket(
         uint256 deedNumber, 
-        uint256 propertyValue) 
+        uint256 propertyValue,
+        address estatePropertyNft) 
         public payable nonReentrant {
         
         // Add a requirement to check the NFT Meta data owner with msg.sender
@@ -68,10 +69,10 @@ contract SmartProperty is Ownable, ReentrancyGuard {
             false,
             deedNumber,
             payable(msg.sender),
-            payable(address(0))
+            payable(address(this))
         );
 
-        contractEastateNft.safeTransferFrom(msg.sender, address(this), deedNumber);
+        ERC721(estatePropertyNft).transferFrom(msg.sender, address(this), deedNumber);
 
         _propertyListingId.increment();
 
@@ -79,7 +80,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
             propertyListingId,
             deedNumber,
             msg.sender,
-            address(0),
+            address(this),
             propertyValue,
             false
         );
@@ -88,26 +89,27 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     /// @dev Transfers the deeds from the Smart Property contract to the buyer
     /// @param propertyListingId Listing ID of the property on the real estate market place
     function sellPropertytoBuyer(
-        uint256 propertyListingId
+        uint256 propertyListingId,
+        address estatePropertyNft
         ) public payable nonReentrant {
 
         uint256 deedNumber = propertyData[propertyListingId].deedNumber;
         uint256 propertyValue = propertyData[propertyListingId].propertyValue;
 
-        require(contractEastateNft.checkIfPropertyExists(deedNumber), "Error, Property not found");
+        require(deedNumber>0, 'Property doesnt exist');
         require(!propertyData[propertyListingId].sold, "Purchase failed, property is not for sale");
         require(msg.value == propertyValue, 'Value entered is below property value of ${propertyValue}. Please submit the price required in order to buy this property.');
 
         (bool success, ) = propertyData[propertyListingId].seller.call{value: msg.value}("");
         require(success, "Transfer failed");
 
-        contractEastateNft.safeTransferFrom(address(this), msg.sender, deedNumber);
+        ERC721(estatePropertyNft).transferFrom(address(this), msg.sender, deedNumber);
 
         propertyData[propertyListingId].buyer = payable(msg.sender);
         propertyData[propertyListingId].sold = true;
         _propertiesSold.increment();
 
-        emit Purchase(propertyData[propertyListingId].seller, msg.sender, msg.value, deedNumber);
+        emit Purchase(propertyData[propertyListingId].seller, msg.sender, msg.value, deedNumber,propertyData[propertyListingId].sold);
     }
 
     /// @notice Returns the details of the properties owned by the customer
@@ -147,7 +149,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
         Property[] memory availableProperties = new Property[](numberOfAvailableProperties);
         
         for(uint256 i = 0; i < numberOfProperties; i++) {
-            if (propertyData[i].buyer == address(0)) {
+            if (propertyData[i].buyer == address(this)) {
                 uint256 currentId = i;
                 Property storage currentItem = propertyData[currentId];
                 availableProperties[currentIndex] = currentItem;
