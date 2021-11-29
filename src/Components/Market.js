@@ -12,7 +12,6 @@ import { Columns } from 'react-bulma-components';
       const web3 = window.web3
       const accounts = await web3.eth.getAccounts()
       this.setState({ account: accounts[0] })
-      console.log(this)
       await this.getSupply();
     }
 
@@ -20,7 +19,6 @@ import { Columns } from 'react-bulma-components';
       super(props)
       this.state = {
         account:'',
-        metadataUrl: 'loading...',
         marketProperties:[]
       }
     }
@@ -30,29 +28,26 @@ import { Columns } from 'react-bulma-components';
     try {
       const smartPropertyMarketContract = this.props.contract;
       const estateContractNft = this.props.propertyNft;
-      // let allProperties = await smartPropertyMarketContract.methods.getAvailableProperties().send({from:this.state.account})
-      
       let allProperties = await smartPropertyMarketContract.methods.getAvailableProperties().call()
-      console.log("------ ALL PROPERTIES ------>>>>>>>>");
-      console.log(allProperties);
-
       let newProperties = [];
 
         allProperties.forEach(async property => {
           const tokenId = property.deedNumber;
 
-          const metadataUri = await estateContractNft.methods.tokenURI(tokenId);
-  
-          const newItem = (
-            <Columns.Column key={property.propertyListingId}>
-              <ItemThumb metadataUri={metadataUri} ipfsGateway={this.props.ipfsGateway} />
-            </Columns.Column>
-          );
+          const metadataUri = await estateContractNft.methods.tokenURI(tokenId).call();
 
-          newProperties.push(newItem);
+          
+          if(metadataUri!=='http://localhost:3000/logo-sample.png'){
+            const newItem = (
+              <Columns.Column key={property.propertyListingId}>
+                <ItemThumb metadataUri={metadataUri} ipfsGateway={this.props.ipfsGateway} />
+              </Columns.Column>
+            );
   
-          this.setState({marketProperties:newProperties})
-          this.setState({metadataURI: metadataUri})
+             newProperties.push(newItem);
+            this.setState({marketProperties:newProperties})
+          }
+
         });
     } catch (err) {
       console.log(err)

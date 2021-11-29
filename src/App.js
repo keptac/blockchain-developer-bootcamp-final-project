@@ -57,7 +57,7 @@ class App extends Component {
       window.alert('ContractEstate NFT not deployed to detected network.')
     }
 
-    this.setState({ipfsGateway: `https://ipfs.io/ipfs`});
+    this.setState({ipfsGateway: `https://ipfs.infura.io`});
     this.setState({ loading: false })
   }
 

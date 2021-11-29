@@ -11,12 +11,23 @@ const client = create({
   path: "api/v0",
 });
 
+const projectId = '21bdLMEhSdbrDhVO8e2FOxrbqyg'
+const projectSecret = 'a94b50bfc6b0aff9bd7916ac839a3f32'
+const auth =
+  'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64')
+
+const client2 = create({
+  host: 'ipfs.infura.io',
+  port: 5001,
+  protocol: 'https',
+  path: "api/v0",
+  headers: {
+    authorization: auth
+  }
+})
 
   class PropertySell extends Component {
-
     async componentDidMount() {
-
-
       await this.loadBlockchainData()
     }
 
@@ -37,11 +48,12 @@ const client = create({
       this.setState({ contractEstate });
       this.setState({ marketAddress: smartPropertyMarketData.address});
       this.setState({ contractAddress: contractEstateData.address});
-      this.setState({ipfsGateway: `https://ipfs.io/ipfs`});
+      this.setState({ipfsGateway: `https://ipfs.infura.io/`});
     }
 
     onFileChange = event => {
       this.setState({ propertyImage: event.target.files[0] });
+      console.log(event.target.files[0]);
     };
   
     constructor(props) {
@@ -78,16 +90,16 @@ const client = create({
                 const deed = this.deed.value;
                 const location = this.location.value.toString();
                 const propertySize = this.propertySize.value.toString();
+                const description = this.description.value.toString();
+
                 let price = this.price.value.toString();
                 price = window.web3.utils.toWei(price, 'Ether');
-
-                let description = this.description.value.toString();
 
                 // Uplodad to ipfs
                 try {
                   
                   const url = await client.add(imageLocation);
-                  const uploadedImageUrl = `https://ipfs.infura.io/ipfs/${url?.path}`;
+                  const uploadedImageUrl = `https://ipfs.infura.io/ipfs/${url.path}`;
 
                   const metadata = {
                     deed:deed,
@@ -99,21 +111,25 @@ const client = create({
                   };
 
                   const metadataRes = await client.add(JSON.stringify(metadata));
-                  const tokenURI = `https://ipfs.infura.io/ipfs/${metadataRes?.path}`;
+                  const tokenURI = `https://ipfs.infura.io/ipfs/${metadataRes.path}`;
 
                   try {
                     await this.state.contractEstate.methods.createPropertyNft(tokenURI, price, deed).send({from:this.state.account}).on('transactionHash', async (hash) => {
                       await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.marketAddress ).send({from:this.state.account});
                     });
+                    client2.pin.add(metadataRes.path).then((res) => {
+                      console.log(res)
+                    });
                   }catch (e) {
                     console.log("error uploading to minting NFT", e);
                   }
 
+                  alert("Property has been uploaded and listed successfully. It may take a while to update the listing. Be patient with me");
                   return {
                     uploadedImageUrl,
                     tokenURI,
-                    metaDataHashCID: metadataRes?.path,
-                    imageHashCID: url?.path,
+                    metaDataHashCID: metadataRes.path,
+                    imageHashCID: url.path,
                   };
                 } catch (e) {
                     console.log("error uploading to IPFS", e);
@@ -123,7 +139,6 @@ const client = create({
           <div className="row mb-4">  
               <div className="input-group col-md-7">
                 <input
-
                   type="file"
                   onChange={this.onFileChange}
                   ref={(imageLocation) => { this.imageLocation = imageLocation }}
