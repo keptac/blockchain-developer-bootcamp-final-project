@@ -18,7 +18,7 @@ const StyledHero = styled(Hero)`
           <Heading>
             Welcome to Contract Estate - Smart Property
           </Heading>
-          <Heading subtitle size={9}>
+          <Heading subtitle size={5}>
             Buy and Sell Land and Real estate Properties as NFTs
           </Heading>
         </Container>

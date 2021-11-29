@@ -2,6 +2,15 @@ import React, { Component } from 'react';
 import SmartProperty from '../abis/SmartProperty.json';
 import ContractEstate from '../abis/ContractEstate.json';
 
+const { create } = require("ipfs-http-client");
+
+const client = create({
+  host: "ipfs.infura.io",
+  port: 5001,
+  protocol: "https",
+  path: "api/v0",
+});
+
 
   class PropertySell extends Component {
 
@@ -30,6 +39,10 @@ import ContractEstate from '../abis/ContractEstate.json';
       this.setState({ contractAddress: contractEstateData.address});
       this.setState({ipfsGateway: `https://ipfs.io/ipfs`});
     }
+
+    onFileChange = event => {
+      this.setState({ propertyImage: event.target.files[0] });
+    };
   
     constructor(props) {
       super(props)
@@ -39,8 +52,8 @@ import ContractEstate from '../abis/ContractEstate.json';
         ipfsGateway:'',
         account:'',
         contractAddress:'',
-        marketAddress:''
-
+        marketAddress:'',
+        propertyImage: null
       }
     }
   
@@ -48,59 +61,78 @@ import ContractEstate from '../abis/ContractEstate.json';
     render() {
   
     return (
-
       <div id="content" className="col-md-12 distance" >
         <div className="card mb-4 card-width" >
+                <h1><b>List Your Property</b></h1>
           <div className="card-body">
           <div className="input-group-append">
               <div className="input-group-text">
-                <img src={'logo-sample.png'} height='32' alt=""/>
+                <img src={'logo-sample.png'} height='200'width='200' alt=""/>
               </div>
             </div>
           <div  className="distance"></div>
             <form className="mb-3" onSubmit={async (event) => {
                 event.preventDefault()
-                let deed;
-                let price;
-                let tokenURI;
 
-                price = this.price.value.toString();
-                deed = this.deed.value;
-                tokenURI = this.tokenURI.value.toString();
+                const imageLocation = this.state.propertyImage;
+                const deed = this.deed.value;
+                const location = this.location.value.toString();
+                const propertySize = this.propertySize.value.toString();
+                let price = this.price.value.toString();
+                price = window.web3.utils.toWei(price, 'Ether');
 
-                price = window.web3.utils.toWei(price, 'Ether')
-                
-                await this.state.contractEstate.methods.createPropertyNft(tokenURI, price, deed).send({from:this.state.account}).on('transactionHash', async (hash) => {
-                  await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.marketAddress ).send({from:this.state.account});
-                });
+                let description = this.description.value.toString();
 
-                // console.log(_deed);
+                // Uplodad to ipfs
+                try {
+                  
+                  const url = await client.add(imageLocation);
+                  const uploadedImageUrl = `https://ipfs.infura.io/ipfs/${url?.path}`;
 
+                  const metadata = {
+                    deed:deed,
+                    location: location,
+                    description:description,
+                    image: uploadedImageUrl,
+                    propertySize:propertySize,
+                    price:price
+                  };
+
+                  const metadataRes = await client.add(JSON.stringify(metadata));
+                  const tokenURI = `https://ipfs.infura.io/ipfs/${metadataRes?.path}`;
+
+                  try {
+                    await this.state.contractEstate.methods.createPropertyNft(tokenURI, price, deed).send({from:this.state.account}).on('transactionHash', async (hash) => {
+                      await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.marketAddress ).send({from:this.state.account});
+                    });
+                  }catch (e) {
+                    console.log("error uploading to minting NFT", e);
+                  }
+
+                  return {
+                    uploadedImageUrl,
+                    tokenURI,
+                    metaDataHashCID: metadataRes?.path,
+                    imageHashCID: url?.path,
+                  };
+                } catch (e) {
+                    console.log("error uploading to IPFS", e);
+                  }
               }}>
-              <div>
-                <label className="float-center"><b>Stake Tokens</b></label>
-              </div>
 
-       
-              <div className="input-group mb-4">
+          <div className="row mb-4">  
+              <div className="input-group col-md-7">
                 <input
-                  type="text"
-                  ref={(tokenURI) => { this.tokenURI = tokenURI }}
-                  className="form-control form-control-lg"
-                  placeholder="Property Link"
-                  required />
 
-              </div>
-              <div className="input-group mb-4">
-                <input
-                  type="number"
-                  ref={(price) => { this.price = price }}
+                  type="file"
+                  onChange={this.onFileChange}
+                  ref={(imageLocation) => { this.imageLocation = imageLocation }}
                   className="form-control form-control-lg"
-                  placeholder="Price in eth"
+                  placeholder="Upload Image"
                   required />
-
               </div>
-              <div className="input-group mb-4">
+
+              <div className="input-group col-md-5">
                 <input
                   type="number"
                   ref={(deed) => { this.deed = deed }}
@@ -108,9 +140,47 @@ import ContractEstate from '../abis/ContractEstate.json';
                   placeholder="Title Deed Number"
                   required />
               </div>
+        </div>
+              <div className="row mb-4">
+                <div className="input-group  col-md-6">
+                  <input
+                    type="text"
+                    ref={(location) => { this.location = location }}
+                    className="form-control form-control-lg"
+                    placeholder="Location"
+                    required />
+                </div>
+                <div className="input-group col-md-6">
+                  <input
+                    type="text"
+                    ref={(propertySize) => { this.propertySize = propertySize }}
+                    className="form-control form-control-lg"
+                    placeholder="Area Size (m2) "
+                    required />
+                </div>
+              </div>
+
+              <div className="input-group mb-4">
+                <input
+                  type="number"
+                  ref={(price) => { this.price = price }}
+                  className="form-control form-control-lg"
+                  placeholder="Price in eth"
+                  required />
+              </div>
+
+              <div className="input-group mb-4">
+                <textarea
+                  type="text"
+                  ref={(description) => { this.description = description }}
+                  className="form-control form-control-lg"
+                  placeholder="Property Description"
+                  required />
+              </div>
+
               <button type="submit" className="btn btn-primary btn-block btn-lg">Submit</button>
             </form>
-            <button
+            {/* <button
               type="submit"
               className="btn btn-link btn-block btn-sm"
               onClick={(event) => {
@@ -118,7 +188,7 @@ import ContractEstate from '../abis/ContractEstate.json';
                 this.props.unstakeTokens()
               }}>
                 UN-STAKE...
-              </button>
+              </button> */}
           </div>
         </div>
 
