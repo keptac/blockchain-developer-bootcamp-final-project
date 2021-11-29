@@ -13,6 +13,18 @@ const StyledLink = styled(Link)`
 // const Navigation = () => {
   class Navigation extends Component {
 
+    async componentDidMount() {
+      const web3 = window.web3
+      const accounts = await web3.eth.getAccounts()
+      this.setState({ account: accounts[0] })
+    }
+    constructor(props) {
+      super(props)
+      this.state = {
+        account:'',
+      }
+    }
+
     render() {
   return (
       <Navbar
@@ -35,7 +47,7 @@ const StyledLink = styled(Link)`
             </StyledLink>
           </Navbar.Item>
           <Navbar.Item renderAs="span">
-            <StyledLink to="/">
+            <StyledLink to="/sell">
               Sell Property
             </StyledLink>
           </Navbar.Item>
@@ -43,6 +55,11 @@ const StyledLink = styled(Link)`
             <StyledLink to="/">
               Verify Ownership
             </StyledLink>
+          </Navbar.Item>
+        </Navbar.Container>
+        <Navbar.Container position="end">
+          <Navbar.Item renderAs="span">
+          Connected wallet address ${this.state.account}
           </Navbar.Item>
         </Navbar.Container>
       </Navbar.Menu>

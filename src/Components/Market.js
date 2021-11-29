@@ -21,11 +21,7 @@ import { Columns } from 'react-bulma-components';
       this.state = {
         account:'',
         metadataUrl: 'loading...',
-        marketProperties:[(
-          <Columns.Column >
-            <ItemThumb metadataUri={'https://ipfs.io/societychain/ipfs/QmdV8XAutRJqrXRo99AYgNcX9iG7zvSHf7C27ZsBQh6xp6?filename=1oexpression-of-interest-for-mining-proposal.pdf'} ipfsGateway={this.props.ipfsGateway} />
-          </Columns.Column>
-        )]
+        marketProperties:[]
       }
     }
 
@@ -40,18 +36,22 @@ import { Columns } from 'react-bulma-components';
       console.log("------ ALL PROPERTIES ------>>>>>>>>");
       console.log(allProperties);
 
+      let newProperties = [];
+
         allProperties.forEach(async property => {
           const tokenId = property.deedNumber;
 
-          const metadataUri = await estateContractNft.tokenURI(tokenId);
+          const metadataUri = await estateContractNft.methods.tokenURI(tokenId);
   
           const newItem = (
             <Columns.Column key={property.propertyListingId}>
               <ItemThumb metadataUri={metadataUri} ipfsGateway={this.props.ipfsGateway} />
             </Columns.Column>
           );
+
+          newProperties.push(newItem);
   
-          this.setState({marketProperties:this.state.marketProperties.push(newItem)})
+          this.setState({marketProperties:newProperties})
           this.setState({metadataURI: metadataUri})
         });
     } catch (err) {

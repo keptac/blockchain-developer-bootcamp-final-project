@@ -9,15 +9,14 @@ import {
 } from "react-router-dom";
 
 import Home from './Pages/Home';
-import ItemView from './Pages/ItemView';
 import AllItems from './Pages/AllItems';
-import Contact from './Pages/Contact';
 import About from './Pages/About';
 
 import Navigation from './Components/Navigation';
 
 import SmartProperty from './abis/SmartProperty.json';
 import ContractEstate from './abis/ContractEstate.json';
+import PropertySell from './Pages/PropertySell';
 
 class App extends Component {
   async componentDidMount() {
@@ -83,13 +82,9 @@ class App extends Component {
           <Navigation />
             <Home contract={this.state.smartPropertyMarket} propertyNft={this.state.contractEstate} ipfsGateway={this.state.ipfsGateway} />
         </Route>
-        <Route path="/item/:itemId">
+        <Route path="/sell">
           <Navigation />
-            <ItemView ipfsGateway={this.state.ipfsGateway} />
-        </Route>
-        <Route path="/contact">
-          <Navigation />
-            <Contact />
+            <PropertySell />
         </Route>
         <Route path="/about">
           <Navigation />

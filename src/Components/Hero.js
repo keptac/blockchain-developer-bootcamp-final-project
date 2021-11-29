@@ -12,6 +12,7 @@ const StyledHero = styled(Hero)`
     render() {
   return (
     <StyledHero color="primary" gradient>
+
       <Hero.Body>
         <Container>
           <Heading>
@@ -23,6 +24,7 @@ const StyledHero = styled(Hero)`
         </Container>
       </Hero.Body>
     </StyledHero>
+    
   );}
 };
 
