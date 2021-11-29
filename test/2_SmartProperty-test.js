@@ -70,7 +70,6 @@ contract('SmartProperty', function(accounts) {
 				await smartPropertyMarket.listPropertyOnEstateMarket(913221, 6000000000000000, estatePropertyNft.address);
 		
 				let itemsPresent = await smartPropertyMarket.getAvailableProperties();
-				console.log(itemsPresent);
 				assert.equal(itemsPresent.length, 5, "Listing Failed. No properties added to the markert place")
 		
 				// Creates a sale for the first NFT and transfers it from the owner to the buyer through the marketplace contract
@@ -81,11 +80,32 @@ contract('SmartProperty', function(accounts) {
 		
 				// Returns one un purchased property
 				let items = await smartPropertyMarket.getAvailableProperties();
-				console.log(items)
 				assert.equal(items.length, 3, "Purchase failed No property sold to buyer.")
 	
 			});
 		});
 	})
 
+		// Test for creation and sale of an Eastate Property
+		it('Should verify the owner of the land or property',  async () => {
+			await SmartPropertyMarket.deployed().then(async function(smartPropertyMarket) {
+				await ContractEstate.deployed(smartPropertyMarket.address).then(async function(estatePropertyNft){
+	
+					let accounts = await web3.eth.getAccounts();
+		
+					await estatePropertyNft.createPropertyNft('https://ipfs.io/societychain/ipfs/QmdV8XAutRJqrXRo99AYgNcX9iG7zvSHf7C27ZsBQh6xp6?filename=1oexpression-of-interest-for-mining-proposa.pdf',  600000000000000, 01342).then(function(){});
+					await estatePropertyNft.createPropertyNft('https://ipfs.io/societychain/ipfs/QmdV8XAutRJqrXRo99AYgNcX9iG7zvSHf7C27ZsBQh6xp6?filename=1oexpression-of-interest-for-mining-proposal.pdf', 6000000000000000, 91221).then(function(){});
+					
+					await smartPropertyMarket.listPropertyOnEstateMarket(01342, 6000000000000000, estatePropertyNft.address);
+					await smartPropertyMarket.listPropertyOnEstateMarket(91221, 6000000000000000, estatePropertyNft.address);
+
+					// Customer buys the smart land or property
+					await smartPropertyMarket
+						.sellPropertytoBuyer(6, estatePropertyNft.address, { from: accounts[7], value: 6000000000000000 });
+					
+					let officialBuyer = await smartPropertyMarket.verifyPropertyOwnership(6, accounts[7]);
+					assert.equal(officialBuyer,true,"Not the current owner of the land");
+				});
+			});
+		})
 })

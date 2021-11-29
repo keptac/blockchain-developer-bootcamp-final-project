@@ -165,9 +165,11 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     ///@param userAddress is the current owner of the property
     ///@return bool if the userAddress is the owner of the properties
     function verifyPropertyOwnership(uint propertyListingId, address userAddress) public view returns(bool){
-        if (propertyData[propertyListingId].buyer == userAddress){
+        if (propertyData[propertyListingId].sold  && propertyData[propertyListingId].buyer == userAddress){
             return true;
-        }else{
+        }else if (!propertyData[propertyListingId].sold  && propertyData[propertyListingId].seller == userAddress){
+            return true;}
+        else {
             return false;
         }
     }
