@@ -26,7 +26,6 @@ contract SmartProperty is Ownable, ReentrancyGuard {
         buyer = payable(msg.sender);
     }
 
-
     struct Property {
         uint256 propertyListingId;
         uint256 propertyValue;
@@ -87,6 +86,9 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     }
     /// @dev Transfer the property value amount from the buyer to the seller of the property.
     /// @dev Transfers the deeds from the Smart Property contract to the buyer
+    /** @notice Functions requires that the property is listed as for sale, that the buyer is not the seller of the property
+                the price and deed number are specified. 
+    */
     /// @param propertyListingId Listing ID of the property on the real estate market place
     function sellPropertytoBuyer(
         uint256 propertyListingId,
@@ -96,8 +98,9 @@ contract SmartProperty is Ownable, ReentrancyGuard {
         uint256 deedNumber = propertyData[propertyListingId].deedNumber;
         uint256 propertyValue = propertyData[propertyListingId].propertyValue;
 
-        require(deedNumber>0, 'Property doesnt exist');
         require(!propertyData[propertyListingId].sold, "Purchase failed, property is not for sale");
+        require(msg.sender!=propertyData[propertyListingId].seller, 'You cannot buy your own property doesnt exist');
+        require(deedNumber>0, 'Property doesnt exist');
         require(msg.value == propertyValue, 'Value entered is below property value of ${propertyValue}. Please submit the price required in order to buy this property.');
 
         (bool success, ) = propertyData[propertyListingId].seller.call{value: msg.value}("");
@@ -115,22 +118,32 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     /// @notice Returns the details of the properties owned by the customer
     /// @return Property[] All the properties owned by the customer
     function getPropertiesOwnedByCustomer() public view returns(Property[] memory) {
+        
         uint propertyCount = _propertyListingId.current();
         uint numberOfProperties = 0;
         uint currentIndex = 0;
 
         for (uint i = 0; i < propertyCount; i++) {
-            if (propertyData[i].buyer == msg.sender) { //OR WHEN THE SOLD IS STILL FALSE THEN YOU ARE THE SELLER
+            if (!propertyData[i].sold && propertyData[i].seller == msg.sender) { //OR WHEN THE SOLD IS STILL FALSE THEN 
+                numberOfProperties += 1;
+            }
+
+            if (propertyData[i].sold && propertyData[i].buyer == msg.sender) { //OR WHEN THE SOLD IS STILL FALSE THEN 
                 numberOfProperties += 1;
             }
         }
 
         Property[] memory customerProperties = new Property[](numberOfProperties);
 
-        for (uint i = 0; i < numberOfProperties; i++) {
-            if (propertyData[i].buyer == msg.sender) {
+        for (uint i = 0; i < propertyCount; i++) {
+            if (!propertyData[i].sold && propertyData[i].seller == msg.sender){
                 uint currentId = i;
-                // Property storage currentItem = propertyData[currentId];
+                customerProperties[currentIndex] = propertyData[currentId];
+                currentIndex += 1;
+            }
+
+            if (propertyData[i].sold && propertyData[i].buyer == msg.sender){
+                uint currentId = i;
                 customerProperties[currentIndex] = propertyData[currentId];
                 currentIndex += 1;
             }

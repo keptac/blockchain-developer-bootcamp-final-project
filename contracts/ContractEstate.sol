@@ -72,11 +72,9 @@ contract ContractEstate is ERC721URIStorage, Ownable {
 
         propertyNft[] memory properties = new propertyNft[](itemCount);
 
-        for (uint i = 0; i < itemCount; i++) {
+        for (uint i = 0; i < totalPropertyCount; i++) {
             if (propertyNftData[counterToDeed[i]].owner == msg.sender) {
-                uint currentId = counterToDeed[i];
-                propertyNft storage currentProperty = propertyNftData[currentId];
-                properties[currentIndex] = currentProperty;
+                properties[currentIndex] = propertyNftData[counterToDeed[i]];
                 currentIndex += 1;
             }
         }

@@ -99,10 +99,12 @@ contract('SmartProperty', function(accounts) {
 					await smartPropertyMarket.listPropertyOnEstateMarket(01342, 6000000000000000, estatePropertyNft.address);
 					await smartPropertyMarket.listPropertyOnEstateMarket(91221, 6000000000000000, estatePropertyNft.address);
 
+					
+
 					// Customer buys the smart land or property
 					await smartPropertyMarket
 						.sellPropertytoBuyer(6, estatePropertyNft.address, { from: accounts[7], value: 6000000000000000 });
-					
+
 					let officialBuyer = await smartPropertyMarket.verifyPropertyOwnership(6, accounts[7]);
 					assert.equal(officialBuyer,true,"Not the current owner of the land");
 				});

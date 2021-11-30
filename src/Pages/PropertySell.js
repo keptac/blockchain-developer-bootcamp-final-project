@@ -34,14 +34,12 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
 
     onFileChange = event => {
       this.setState({ propertyImage: event.target.files[0] });
-      console.log(event.target.files[0]);
     };
 
     async getMyProperties() {
-    
       try {
-        
-        let allProperties = await this.state.contractEstate.methods.getUserProperties().call()
+        // let allProperties = await this.state.contractEstate.methods.getUserProperties().call()
+        let allProperties = await this.state.smartPropertyMarket.methods.getPropertiesOwnedByCustomer().call()
         console.log(allProperties);
         
         let myProperties = [];

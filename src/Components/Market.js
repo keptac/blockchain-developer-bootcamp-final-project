@@ -5,7 +5,7 @@ import ItemThumb from './ItemThumb';
     
 
     async componentDidMount() {
-      
+
       const web3 = window.web3
       const accounts = await web3.eth.getAccounts()
       this.setState({ account: accounts[0] })
@@ -21,13 +21,11 @@ import ItemThumb from './ItemThumb';
     }
 
   async getSupply() {
-    
     try {
       const smartPropertyMarketContract = this.props.contract;
       const estateContractNft = this.props.propertyNft;
       let allProperties = await smartPropertyMarketContract.methods.getAvailableProperties().call()
       let newProperties = [];
-
         allProperties.forEach(async property => {
           const tokenId = property.deedNumber;
 

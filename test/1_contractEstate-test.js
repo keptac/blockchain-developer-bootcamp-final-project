@@ -73,6 +73,7 @@ contract('ContractEstate', function(accounts) {
 		
 				// Returns the array of Properties owned by the address
 				let propertiesOwned = await estatePropertyNft.getUserProperties();
+
 				assert.equal(propertiesOwned.length, 3);
 			});
 		});

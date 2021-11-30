@@ -49,7 +49,7 @@ const ItemThumb = ({metadataUri, listingId}) => {
   const loadBlockchainData = async () =>{
 
     const web3 = window.web3
-
+ 
     const accounts = await web3.eth.getAccounts();
     const networkId = await web3.eth.net.getId();
 
