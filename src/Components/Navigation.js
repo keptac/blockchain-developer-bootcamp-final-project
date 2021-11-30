@@ -51,11 +51,11 @@ const StyledLink = styled(Link)`
               Sell Property
             </StyledLink>
           </Navbar.Item>
-          <Navbar.Item renderAs="span">
+          {/* <Navbar.Item renderAs="span">
             <StyledLink to="/">
               Verify Ownership
             </StyledLink>
-          </Navbar.Item>
+          </Navbar.Item> */}
         </Navbar.Container>
         <Navbar.Container position="end">
           <Navbar.Item renderAs="span">

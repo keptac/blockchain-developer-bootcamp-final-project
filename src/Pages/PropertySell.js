@@ -9,6 +9,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
   class PropertySell extends Component {
     async componentDidMount() {
       await this.loadBlockchainData()
+      await this.getMyProperties()
     }
 
     async loadBlockchainData() {
@@ -35,6 +36,23 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
       this.setState({ propertyImage: event.target.files[0] });
       console.log(event.target.files[0]);
     };
+
+    async getMyProperties() {
+    
+      try {
+        
+        let allProperties = await this.state.contractEstate.methods.getUserProperties().call()
+        console.log(allProperties);
+        
+        let myProperties = [];
+          allProperties.forEach(async property => {
+            myProperties.push(property);
+            this.setState({marketProperties:myProperties})
+          });
+      } catch (err) {
+        console.log(err)
+      }
+    }
   
     constructor(props) {
       super(props)
@@ -51,17 +69,14 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
   
 
     render() {
-  
     return (
+      < div className="row">
+      <div className="col-md-7">
+      <h1 className="col-md-12 distance list-property"><b>List Your New Property For Sale</b></h1>
       <div id="content" className="col-md-12 distance" >
-        <div className="card mb-4 card-width" >
-                <h1><b>List Your Property</b></h1>
+        <div className="card mb-4 " >
+              
           <div className="card-body">
-          <div className="input-group-append">
-              <div className="input-group-text">
-                <img src={'logo-sample.png'} height='200'width='200' alt=""/>
-              </div>
-            </div>
           <div  className="distance"></div>
             <form className="mb-3" onSubmit={async (event) => {
                 event.preventDefault()
@@ -92,27 +107,22 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
 
                   const metadataRes = await client.add(JSON.stringify(metadata));
                   const tokenURI = `https://ipfs.infura.io/ipfs/${metadataRes.path}`;
-
-                  // client2.pin.add(metadataRes.path).then((res) => {
-                  //   console.log(res)
-                  // });
-
                   try {
                     await this.state.contractEstate.methods.createPropertyNft(tokenURI, price, deed).send({from:this.state.account}).on('transactionHash', async (hash) => {
                       await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.marketAddress ).send({from:this.state.account});
                     });
+
+                    alert("Property has been uploaded and listed successfully. It may take a while to update the listing. Be patient with me");
+                    return {
+                      uploadedImageUrl,
+                      tokenURI,
+                      metaDataHashCID: metadataRes.path,
+                      imageHashCID: url.path,
+                    };
                   
                   }catch (e) {
                     console.log("error uploading to minting NFT", e);
                   }
-
-                  alert("Property has been uploaded and listed successfully. It may take a while to update the listing. Be patient with me");
-                  return {
-                    uploadedImageUrl,
-                    tokenURI,
-                    metaDataHashCID: metadataRes.path,
-                    imageHashCID: url.path,
-                  };
                 } catch (e) {
                     console.log("error uploading to IPFS", e);
                   }
@@ -175,10 +185,24 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                   required />
               </div>
 
-              <button type="submit" className="btn btn-primary btn-block btn-lg">Submit</button>
+              <button type="submit" className="btn btn-warning btn-block btn-lg">Submit</button>
             </form>
           </div>
         </div>
+
+      </div>
+      </div>
+
+      <div className="col-md-5">
+        <h1 className="col-md-12 distance list-property"><b>My Properties</b></h1>
+        <div id="content" className="col-md-12 distance" >
+            <div className="card mb-4" >
+              <div className="card-body">
+                <div className="distance"></div>
+              </div>
+            </div>
+        </div>
+      </div>
 
       </div>
     );

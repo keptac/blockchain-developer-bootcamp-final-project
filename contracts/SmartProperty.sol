@@ -120,7 +120,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
         uint currentIndex = 0;
 
         for (uint i = 0; i < propertyCount; i++) {
-            if (propertyData[i].buyer == msg.sender) {
+            if (propertyData[i].buyer == msg.sender) { //OR WHEN THE SOLD IS STILL FALSE THEN YOU ARE THE SELLER
                 numberOfProperties += 1;
             }
         }
