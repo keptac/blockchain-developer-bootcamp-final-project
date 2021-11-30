@@ -19,7 +19,7 @@ module.exports = {
     rinkeby: {
       provider: function () {
         return new HDWalletProvider(
-          "mountains,supernatural,bird,coffee,monkey,chelenje,build,spark,dog,baseball,fee,kelvin",
+          privateKeys.split(","),
           `https://rinkeby.infura.io/v3/${process.env.INFURA_ID}`
         );
       },

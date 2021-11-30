@@ -47,14 +47,14 @@ class App extends Component {
       const smartPropertyMarket = new web3.eth.Contract(SmartProperty.abi, smartPropertyMarketData.address);
       this.setState({ smartPropertyMarket });
     } else {
-      window.alert('SmartProperty contract not deployed to detected network.')
+      window.alert('Contract not deployed on select network. Switch to RINKEBY')
     }
 
     if(contractEstateData) {
       const contractEstate = new web3.eth.Contract(ContractEstate.abi, contractEstateData.address);
       this.setState({ contractEstate });
     } else {
-      window.alert('ContractEstate NFT not deployed to detected network.')
+      window.alert('NFT Contract not deployed on selected network. Switch to RINKEBY')
     }
 
     this.setState({ipfsGateway: `https://ipfs.infura.io`});

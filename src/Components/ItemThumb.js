@@ -87,7 +87,7 @@ const ItemThumb = ({metadataUri, listingId}) => {
 
               alert("You are about to make a purchase.");
             try{
-              await smartPropertyMarket.methods.sellPropertytoBuyer(listingId,  marketAddress).send({ from: account, value: window.web3.utils.toWei(price, 'Ether') });
+              await smartPropertyMarket.methods.sellPropertytoBuyer(listingId,  nftAddress).send({ from: account, value: window.web3.utils.toWei(price, 'Ether') });
             }catch (e) {
               console.log("error making a purchase", e);
             } 

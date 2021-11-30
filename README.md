@@ -96,7 +96,9 @@ blockchain-developer-bootcamp-final-project
 ## PROCESS FLOW / CUSTOMER JOURNEY
 
 ```
-0. During first time visit, the dapp checks for metamask presence and contract deployment on selected network. It notifies if the contract is not deployed on the selected network. (NETWORKS - Rinkeby, local )
+0. During first time visit, the dapp checks for metamask presence and contract deployment on 
+selected network. It notifies if the contract is not deployed on the selected network. 
+(NETWORKS - Rinkeby, local )
 
 if connected it displays the wallet address the user has connected.
 ```
@@ -109,7 +111,9 @@ if connected it displays the wallet address the user has connected.
 
 - 3. Submit the request. 
 
-NOTES: On submit, the dapp uploads data to ipfs via (ips.infura.io) and returns the CID and tokenURI. The NFT is then minted immediately to the seller's address. After it is minted it is then enlisted to the market place and appears as sold
+NOTES: On submit, the dapp uploads data to ipfs via (ips.infura.io) and returns the CID and 
+tokenURI. The NFT is then minted immediately to the seller's address. After it is minted it is 
+then enlisted to the market place and appears as sold
 
 - 4. Approve transaction on metamask to mint
 

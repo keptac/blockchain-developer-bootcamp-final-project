@@ -107,7 +107,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                   const tokenURI = `https://ipfs.infura.io/ipfs/${metadataRes.path}`;
                   try {
                     await this.state.contractEstate.methods.createPropertyNft(tokenURI, price, deed).send({from:this.state.account}).on('transactionHash', async (hash) => {
-                      await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.marketAddress ).send({from:this.state.account});
+                      await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.contractAddress ).send({from:this.state.account});
                     });
 
                     alert("Property has been uploaded and listed successfully. It may take a while to update the listing. Be patient with me");
@@ -167,7 +167,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
 
               <div className="input-group mb-4">
                 <input
-                  type="number"
+                  type="text"
                   ref={(price) => { this.price = price }}
                   className="form-control form-control-lg"
                   placeholder="Price in eth"

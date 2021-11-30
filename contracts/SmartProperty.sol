@@ -99,7 +99,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
         uint256 propertyValue = propertyData[propertyListingId].propertyValue;
 
         require(!propertyData[propertyListingId].sold, "Purchase failed, property is not for sale");
-        require(msg.sender!=propertyData[propertyListingId].seller, 'You cannot buy your own property doesnt exist');
+        require(msg.sender!=propertyData[propertyListingId].seller, 'You cannot buy your own property');
         require(deedNumber>0, 'Property doesnt exist');
         require(msg.value == propertyValue, 'Value entered is below property value of ${propertyValue}. Please submit the price required in order to buy this property.');
 
