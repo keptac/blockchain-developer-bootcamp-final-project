@@ -1,0 +1,9 @@
+Network: Rinkeby 
+https://rinkeby.etherscan.io/
+
+SmartProperty Contract Address = ''
+https://rinkeby.etherscan.io/address/
+
+ContractEstate Contract Address = ''
+https://rinkeby.etherscan.io/address/
+
