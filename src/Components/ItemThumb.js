@@ -85,11 +85,21 @@ const ItemThumb = ({metadataUri, listingId}) => {
         <button type="submit" className="btn btn-warning btn-block btn-lg" onClick={async (event)  => {
               event.preventDefault()
 
-              alert("You are about to make a purchase.");
+              alert("You are about to make a purchase. You will be redirected to authorise transaction");
             try{
-              await smartPropertyMarket.methods.sellPropertytoBuyer(listingId,  nftAddress).send({ from: account, value: window.web3.utils.toWei(price, 'Ether') });
+              await smartPropertyMarket.methods.sellPropertytoBuyer(listingId,  nftAddress).send({ from: account, value: window.web3.utils.toWei(price, 'Ether') }).on('transactionHash', async (listingHash) => {
+                alert(`Transaction completed reference: \n\n${listingHash}`);
+              })
             }catch (e) {
-              console.log("error making a purchase", e);
+              var startString = '"reason":';
+              var endString = '"},"';
+
+              var mySubString = e.message.substring(
+                e.message.indexOf(startString) + 1, 
+                e.message.lastIndexOf(endString)  ).replace('":"',': ');
+              
+              alert(`Transaction Failed with  ${mySubString}`);
+              console.log("error making a purchase", e.message);
             } 
           }}>Buy Property</button>
       </Box>

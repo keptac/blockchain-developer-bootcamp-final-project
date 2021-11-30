@@ -36,7 +36,8 @@ https://contract-estate.herokuapp.com/
 ```
 ## SCREENCAST
 ```
-
+https://youtu.be/6bE2mqC_vKg
+https://vimeo.com/651750305
 ```
 ## GETTING STARTED LOCALY
 

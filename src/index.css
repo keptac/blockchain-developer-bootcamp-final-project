@@ -24,3 +24,13 @@ code {
 .list-property{
   font-size:xx-large;
 }
+
+.center-class{
+  margin-top:50%;
+  margin-left:20%;
+}
+
+.center-class2{
+  margin-top:10%;
+  margin-left:50%;
+}

@@ -1,6 +1,16 @@
 import React, { Component } from 'react';
 import SmartProperty from '../abis/SmartProperty.json';
 import ContractEstate from '../abis/ContractEstate.json';
+import Loader from 'react-loader-spinner';
+
+import styled from 'styled-components';
+import {
+  Link
+} from "react-router-dom";
+
+const StyledLink = styled(Link)`
+  color: #4a4a4a;
+`;
 
 const { create } = require("ipfs-http-client");
 
@@ -61,7 +71,12 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
         account:'',
         contractAddress:'',
         marketAddress:'',
-        propertyImage: null
+        propertyImage: null,
+        loadingStatus:0,
+        mintingStatus:null,
+        txError:null,
+        txMessage:'Processing your transactions',
+        finalMessage:''
       }
     }
   
@@ -88,7 +103,11 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                 let price = this.price.value.toString();
                 price = window.web3.utils.toWei(price, 'Ether');
 
-                // Uplodad to ipfs
+                this.setState({mintingStatus:0});
+
+                Array.from(event.target).forEach((e) => (e.value = ""));
+
+                this.setState({txMessage:'Uploading files to IPFS'});
                 try {
                   
                   const url = await client.add(imageLocation);
@@ -105,24 +124,36 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
 
                   const metadataRes = await client.add(JSON.stringify(metadata));
                   const tokenURI = `https://ipfs.infura.io/ipfs/${metadataRes.path}`;
+                  this.setState({txMessage:`Minting token ${tokenURI}\n\n ...`});
+
                   try {
                     await this.state.contractEstate.methods.createPropertyNft(tokenURI, price, deed).send({from:this.state.account}).on('transactionHash', async (hash) => {
-                      await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.contractAddress ).send({from:this.state.account});
+                      console.log('Minting :', hash);
+                      this.setState({txMessage:'Pending second authorization...'});
+                      await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.contractAddress ).send({from:this.state.account}).on('transactionHash', async (listingHash) => {
+                        console.log('Listing :', listingHash);
+
+                        setTimeout(() => {
+             
+                          this.setState({loadingStatus:1})
+                          this.setState({mintingStatus:1})
+                          this.setState({finalMessage:`Property has been uploaded and listed successfully. ${listingHash}`})
+                       }, 1000);
+                        
+                       
+
+                      });
                     });
 
-                    alert("Property has been uploaded and listed successfully. It may take a while to update the listing. Be patient with me");
-                    return {
-                      uploadedImageUrl,
-                      tokenURI,
-                      metaDataHashCID: metadataRes.path,
-                      imageHashCID: url.path,
-                    };
-                  
                   }catch (e) {
-                    console.log("error uploading to minting NFT", e);
+                    this.setState({txMessage:'An error occured while minting'});
+                    this.setState({finalMessage:'An error occured while minting'})
+                    console.log("error uploading to minting NFT ", e);
                   }
                 } catch (e) {
-                    console.log("error uploading to IPFS", e);
+                  this.setState({txMessage:'An error occured while uploading files to IPFS'});
+                    this.setState({finalMessage:'An error occured while uploading files to IPFS'})
+                    console.log("error uploading to IPFS ", e);
                   }
               }}>
 
@@ -182,7 +213,6 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                   placeholder="Property Description"
                   required />
               </div>
-
               <button type="submit" className="btn btn-warning btn-block btn-lg">Submit</button>
             </form>
           </div>
@@ -192,14 +222,50 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
       </div>
 
       <div className="col-md-5">
-        <h1 className="col-md-12 distance list-property"><b>My Properties</b></h1>
+
+{this.state.loadingStatus === 0 ? (
+					this.state.mintingStatus === 0 ? (
+						this.state.txError === null ? (
+							<div className='flex flex-col justify-center items-center'>
+								<div className='text-lg font-bold mt-16 justify-center center-class'>
+									{this.state.txMessage}
+								</div>
+                <Loader
+                    className='flex justify-center items-center pt-12 center-class2'
+                    type='TailSpin'
+                    color='#6B7280'
+                    height={40}
+                    width={40}
+                  />
+							</div>
+						) : (
+							<div className='justify-center items-center text-lg text-red-600 font-semibold'>
+								{this.state.txError}
+							</div>
+						)
+					) : (
+						<div></div>
+					)
+				) : (
+					<div className='justify-center items-center center-class '>
+						{this.state.finalMessage}
+            <StyledLink to="/" className="btn btn-warning btn-block btn-lg">
+              View Property in Market Place
+            </StyledLink>
+					</div>
+				)}
+
+
+        {/* <h1 className="col-md-12 distance list-property"><b>My Properties</b></h1>
         <div id="content" className="col-md-12 distance" >
             <div className="card mb-4" >
               <div className="card-body">
-                <div className="distance"></div>
+                <div className="distance">
+            
+                </div>
               </div>
             </div>
-        </div>
+        </div> */}
       </div>
 
       </div>
