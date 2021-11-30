@@ -35,8 +35,8 @@ of great minds around unfolds. Won't it be dreamy!!
 
 ## SCREENCAST
 
-[https://youtu.be/6bE2mqC_vKg](https://youtu.be/6bE2mqC_vKg)
-[https://vimeo.com/651750305](https://youtu.be/6bE2mqC_vKg)
+- [https://youtu.be/6bE2mqC_vKg](https://youtu.be/6bE2mqC_vKg)
+- [https://vimeo.com/651750305](https://vimeo.com/651750305)
 
 ## GETTING STARTED LOCALY
 
