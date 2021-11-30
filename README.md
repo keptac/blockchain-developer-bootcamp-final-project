@@ -31,14 +31,13 @@ of great minds around unfolds. Won't it be dreamy!!
 ```
 ## PUBLIC URL - FRONTEND
 
-```
-https://contract-estate.herokuapp.com/
-```
+[https://contract-estate.herokuapp.com/](https://contract-estate.herokuapp.com/)
+
 ## SCREENCAST
-```
-https://youtu.be/6bE2mqC_vKg
-https://vimeo.com/651750305
-```
+
+[https://youtu.be/6bE2mqC_vKg](https://youtu.be/6bE2mqC_vKg)
+[https://vimeo.com/651750305](https://youtu.be/6bE2mqC_vKg)
+
 ## GETTING STARTED LOCALY
 
 ### 1. Local Solidity Spin
