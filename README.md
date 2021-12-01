@@ -32,6 +32,9 @@ of great minds around unfolds. Won't it be dreamy!!
 ## PUBLIC URL - FRONTEND
 
 [https://contract-estate.herokuapp.com/](https://contract-estate.herokuapp.com/)
+```
+NB: If is fails to load the first time and displays a heroku erro, refresh the page.
+```
 
 ## SCREENCAST
 
