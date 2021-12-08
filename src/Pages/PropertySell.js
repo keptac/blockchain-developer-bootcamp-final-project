@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import SmartProperty from '../abis/SmartProperty.json';
 import ContractEstate from '../abis/ContractEstate.json';
 import Loader from 'react-loader-spinner';
+import { Box, Image } from 'react-bulma-components';
 
 import styled from 'styled-components';
 import {
   Link
 } from "react-router-dom";
+import ItemThumb from '../Components/ItemThumb';
 
 const StyledLink = styled(Link)`
   color: #4a4a4a;
@@ -48,15 +50,92 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
 
     async getMyProperties() {
       try {
-        // let allProperties = await this.state.contractEstate.methods.getUserProperties().call()
-        let allProperties = await this.state.smartPropertyMarket.methods.getPropertiesOwnedByCustomer().call()
-        // let allProperties = await this.state.smartPropertyMarket.methods.getAllProperties().call()
-        console.log(allProperties);
+        let allProperties = await this.state.smartPropertyMarket.methods.getAllProperties().call()
+        console.log(allProperties)
         
-        let myProperties = [];
+        let newProperties = [];
           allProperties.forEach(async property => {
-            myProperties.push(property);
-            this.setState({marketProperties:myProperties})
+
+            if((property.sold && (property.buyer ===this.state.account)) || (!property.sold && (property.seller ===this.state.account)) ){
+              const tokenId = property.deedNumber;
+              
+              const metadataUri = await this.state.contractEstate.methods.tokenURI(tokenId).call();
+              const res = await fetch(metadataUri);
+              const metadata = await res.json();
+
+                const newItem = (
+                  
+                    <tr key={property.propertyListingId}>
+                      <td >
+                        <div className="td-text">
+                        {property.deedNumber}
+                          </div>
+                      
+                      </td>
+                      <td>
+                      <div className="td-text">
+                      { window.web3.utils.fromWei(property.propertyValue, 'Ether') }
+                          </div>
+                      
+                      </td>
+                      <td>
+                      <div className="td-text">
+                      {metadata.propertySize} m<sup>2</sup>
+                          </div>
+                        
+                      </td>
+                      <td>
+                      <div className="td-text">
+                      {metadata.location}
+                          </div>
+                     
+                      </td>
+                      <td>
+                      <div className="td-text2">
+                      <button type="submit" className="btn btn-warning"
+                          onClick={async (event)  => {
+                            this.setState({mintingStatus:0});
+                            this.setState({loadingStatus:0});
+                            event.preventDefault()
+              
+                            alert("You are about to sell your property.");
+
+                            this.setState({txMessage:'Listing request processing. Pending authorisation'});
+
+                            try {
+                                await this.state.smartPropertyMarket.methods.relistProperty(property.propertyListingId, property.deedNumber, property.propertyValue, this.state.contractAddress ).send({from:this.state.account}).on('transactionHash', async (listingHash) => {
+
+                                  setTimeout(() => {
+                                    this.setState({loadingStatus:1});
+                                    this.setState({mintingStatus:1});
+                                    this.setState({finalMessage:`Request has been submitted successfully. Property will appear on the market place.\n`});
+                                }, 1000);
+                                });
+                            }catch (e) {
+                              this.setState({mintingStatus:1});
+                              this.setState({loadingStatus:0});
+                            var startString = '"reason":';
+                            var endString = '"},"';
+              
+                            var mySubString = e.message.substring(
+                              e.message.indexOf(startString) + 1, 
+                              e.message.lastIndexOf(endString)  ).replace('":"',': ');
+                              this.setState({txMessage:`Selling failed. Reason: ${mySubString}`});
+                            
+                            alert(`Transaction failed because  ${mySubString}`);
+                            console.log("Error making a purchase", e.message);
+                          } 
+                        }}
+                      >Sell</button>
+                          </div>
+                      
+                      </td>
+                    </tr>
+
+                  );
+                newProperties.push(newItem);
+                this.setState({marketProperties:newProperties})
+            }
           });
       } catch (err) {
         console.log(err)
@@ -135,13 +214,10 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                         console.log('Listing :', listingHash);
 
                         setTimeout(() => {
-             
                           this.setState({loadingStatus:1})
                           this.setState({mintingStatus:1})
                           this.setState({finalMessage:`Property has been uploaded and listed successfully. ${listingHash}`})
-                       }, 1000);
-                        
-                       
+                      }, 1000);
 
                       });
                     });
@@ -245,7 +321,41 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
 							</div>
 						)
 					) : (
-						<div></div>
+						<div>
+                      <h1 className="col-md-12 distance list-property"><b>My Properties</b></h1>
+                      <div id="content" className="col-md-12 distance" >
+                          <div className="card mb-4" >
+                            <div className="card-body">
+                              <div className="distance">
+                                
+                             
+                              <table>
+                              <tr className="tableHearder">
+                                  <td>
+                                    Deed
+                                  </td>
+                                  <td>
+                                    Price
+                                  </td>
+                                  <td>
+                                    Size
+                                  </td>
+                                  <td>
+                                    Location
+                                  </td>
+                                  <td>
+                                    Actions
+                                  </td>
+                                </tr>
+
+                                {this.state.marketProperties}
+                                
+                              </table>
+                              </div>
+                            </div>
+                          </div>
+        </div>
+            </div>
 					)
 				) : (
 					<div className='justify-center items-center center-class '>
@@ -257,16 +367,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
 				)}
 
 
-        {/* <h1 className="col-md-12 distance list-property"><b>My Properties</b></h1>
-        <div id="content" className="col-md-12 distance" >
-            <div className="card mb-4" >
-              <div className="card-body">
-                <div className="distance">
-            
-                </div>
-              </div>
-            </div>
-        </div> */}
+
       </div>
 
       </div>

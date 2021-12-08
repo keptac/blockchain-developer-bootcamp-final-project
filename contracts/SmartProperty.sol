@@ -46,6 +46,46 @@ contract SmartProperty is Ownable, ReentrancyGuard {
 
     event Purchase(address seller, address buyer, uint256 price, uint256 deed, bool sold);
 
+    /// @dev sells an existing property
+    /// @dev first the property is not already listed as for sale
+    /// @param deedNumber Token ID of the Property
+    /// @param listingId Current property listing id 
+    /// @param propertyValue Price of the Property specified by the seller
+    function relistProperty(
+        uint256 listingId,
+        uint256 deedNumber, 
+        uint256 propertyValue,
+        address ownerAddress) 
+        public payable nonReentrant {
+        
+        require(propertyValue > 0, "Price must be greater than 0");
+        require(propertyData[listingId].buyer != address(this), "The property is already listed on market as available for sell");
+
+        uint256 propertyListingId = _propertyListingId.current();
+
+        propertyData[propertyListingId] = Property(
+            propertyListingId,
+            propertyValue,
+            false,
+            deedNumber,
+            payable(msg.sender),
+            payable(address(this))
+        );
+
+        ERC721(ownerAddress).transferFrom(msg.sender, address(this), deedNumber);
+
+        _propertyListingId.increment();
+
+        emit PropertyListed(
+            propertyListingId,
+            deedNumber,
+            msg.sender,
+            address(this),
+            propertyValue,
+            false
+        );
+    }
+
     /// @notice lists a seller's property on the real estate market
     /// @dev transfers the property from seller(buyer) to the Smart Property Contract
     /// @dev first checks if the property is not listed already by checking the deedNumber
@@ -57,7 +97,6 @@ contract SmartProperty is Ownable, ReentrancyGuard {
         address ownerAddress) 
         public payable nonReentrant {
         
-        // Add a requirement to check the NFT Meta data owner with msg.sender
         require(propertyValue > 0, "Price must be greater than 0");
 
         uint256 propertyListingId = _propertyListingId.current();

@@ -34,3 +34,37 @@ code {
   margin-top:10%;
   margin-left:50%;
 }
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,th {
+  border: 1px solid #dddddd;
+  /* text-align: center; */
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+.tableHearder{
+  text-align: center;
+  font-weight: bold;
+  padding-left: 10px;
+}
+
+.td-text{
+  padding-top: 10px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.td-text2{
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 15px;
+}

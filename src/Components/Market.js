@@ -34,7 +34,7 @@ import ItemThumb from './ItemThumb';
           
           if(metadataUri!=='http://localhost:3000/logo-sample.png'){
             const newItem = (
-              <div className="col-md-3 mb-4" key={property.propertyListingId}>
+              <div className="col-md-4 mb-4" key={property.propertyListingId}>
                 <ItemThumb metadataUri={metadataUri} listingId={property.propertyListingId} />
               </div>
             );

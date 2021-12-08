@@ -42,7 +42,7 @@ const ItemThumb = ({metadataUri, listingId}) => {
       setImageUrl(`${metadata.image}`);
 
     } catch (err) {
-      console.log(err)
+      // console.log(err)
     }
   }
 
@@ -61,6 +61,7 @@ const ItemThumb = ({metadataUri, listingId}) => {
     setSmartPropertyMarketInstance(smartPropertyMarketTemp);
     setNftAddress(contractEstateData.address);
     setMarketAddress(smartPropertyMarketData.address);
+    // console.log(marketAddress);
   }
 
   useEffect(() => {
