@@ -112,8 +112,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                                 }, 1000);
                                 });
                             }catch (e) {
-                              this.setState({mintingStatus:1});
-                              this.setState({loadingStatus:0});
+                              
                             var startString = '"reason":';
                             var endString = '"},"';
               
@@ -122,8 +121,11 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                               e.message.lastIndexOf(endString)  ).replace('":"',': ');
                               this.setState({txMessage:`Selling failed. Reason: ${mySubString}`});
                             
-                            alert(`Transaction failed because  ${mySubString}`);
-                            console.log("Error making a purchase", e.message);
+                            alert(`Transaction failed  ${mySubString}`);
+      
+                            console.log("Error making a purchase ", e.message);
+                            this.setState({mintingStatus:1});
+                            this.setState({loadingStatus:0});
                           } 
                         }}
                       >Sell</button>
