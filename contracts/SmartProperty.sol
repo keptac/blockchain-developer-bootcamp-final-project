@@ -72,8 +72,10 @@ contract SmartProperty is Ownable, ReentrancyGuard {
             payable(address(this))
         );
 
+        ERC721(ownerAddress).setApprovalForAll(address(this), true);
         ERC721(ownerAddress).transferFrom(msg.sender, address(this), deedNumber);
-
+        ERC721(ownerAddress).approve(msg.sender, deedNumber);
+    
         _propertyListingId.increment();
 
         emit PropertyListed(

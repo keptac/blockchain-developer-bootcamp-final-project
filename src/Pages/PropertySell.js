@@ -37,6 +37,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
       const contractEstate = new web3.eth.Contract(ContractEstate.abi, contractEstateData.address);
 
       this.setState({ account: accounts[0] });
+      this.setState({marketProperties:[]});
       this.setState({ smartPropertyMarket });
       this.setState({ contractEstate });
       this.setState({ marketAddress: smartPropertyMarketData.address});
@@ -50,31 +51,41 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
 
     async getMyProperties() {
       try {
-        let allProperties = await this.state.smartPropertyMarket.methods.getAllProperties().call()
-        console.log(allProperties)
+        // let allProperties = await this.state.smartPropertyMarket.methods.getAllProperties().call()
+         let allProperties = await this.state.contractEstate.methods.getAllProperties().call()
+        // let allProperties = await this.state.contractEstate.methods.getUserProperties().call()
         
         let newProperties = [];
           allProperties.forEach(async property => {
 
-            if((property.sold && (property.buyer ===this.state.account)) || (!property.sold && (property.seller ===this.state.account)) ){
               const tokenId = property.deedNumber;
-              
               const metadataUri = await this.state.contractEstate.methods.tokenURI(tokenId).call();
               const res = await fetch(metadataUri);
               const metadata = await res.json();
 
+              console.log("---------->>>>")
+              console.log(allProperties)
+              console.log("---------->>>>")
+            console.log(metadata)
+            console.log("---------->>>>")
+            let singleProperty = await this.state.smartPropertyMarket.methods.findPropertyByDeed(metadata.deed).call()
+            
+            console.log(singleProperty)
+            console.log("---------->>>>")
+
+            if((singleProperty.sold && (singleProperty.buyer === this.state.account)) || (!singleProperty.sold && (singleProperty.seller ===this.state.account)) ){
                 const newItem = (
                   
-                    <tr key={property.propertyListingId}>
+                    <tr key={singleProperty.propertyListingId}>
                       <td >
                         <div className="td-text">
-                        {property.deedNumber}
+                        {singleProperty.deedNumber}
                           </div>
                       
                       </td>
                       <td>
                       <div className="td-text">
-                      { window.web3.utils.fromWei(property.propertyValue, 'Ether') }
+                      { window.web3.utils.fromWei(singleProperty.propertyValue, 'Ether') }
                           </div>
                       
                       </td>
@@ -90,7 +101,8 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                           </div>
                      
                       </td>
-                      <td>
+
+                      {/* <td>
                       <div className="td-text2">
                       <button type="submit" className="btn btn-warning"
                           onClick={async (event)  => {
@@ -103,12 +115,12 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                             this.setState({txMessage:'Listing request processing. Pending authorisation'});
 
                             try {
-                                await this.state.smartPropertyMarket.methods.relistProperty(property.propertyListingId, property.deedNumber, property.propertyValue, this.state.contractAddress ).send({from:this.state.account}).on('transactionHash', async (listingHash) => {
+                                await this.state.smartPropertyMarket.methods.relistProperty(singleProperty.propertyListingId, singleProperty.deedNumber, singleProperty.propertyValue, this.state.contractAddress ).send({from:this.state.account}).on('transactionHash', async (listingHash) => {
 
                                   setTimeout(() => {
                                     this.setState({loadingStatus:1});
                                     this.setState({mintingStatus:1});
-                                    this.setState({finalMessage:`Request has been submitted successfully. Property will appear on the market place.\n`});
+                                    this.setState({finalMessage:`Request has been submitted successfully. Property will appear on the market place.\n\n`});
                                 }, 1000);
                                 });
                             }catch (e) {
@@ -122,7 +134,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                               this.setState({txMessage:`Selling failed. Reason: ${mySubString}`});
                             
                             alert(`Transaction failed  ${mySubString}`);
-      
+                            
                             console.log("Error making a purchase ", e.message);
                             this.setState({mintingStatus:1});
                             this.setState({loadingStatus:0});
@@ -131,17 +143,20 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                       >Sell</button>
                           </div>
                       
-                      </td>
+                      </td> */}
                     </tr>
 
                   );
                 newProperties.push(newItem);
                 this.setState({marketProperties:newProperties})
+                
             }
           });
+
       } catch (err) {
         console.log(err)
       }
+     
     }
   
     constructor(props) {
@@ -212,16 +227,21 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                     await this.state.contractEstate.methods.createPropertyNft(tokenURI, price, deed).send({from:this.state.account}).on('transactionHash', async (hash) => {
                       console.log('Minting :', hash);
                       this.setState({txMessage:'Pending second authorization...'});
-                      await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.contractAddress ).send({from:this.state.account}).on('transactionHash', async (listingHash) => {
-                        console.log('Listing :', listingHash);
+                      setTimeout(async () => {
+     
+                        await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.contractAddress ).send({from:this.state.account}).on('transactionHash', async (listingHash) => {
+                          console.log('Listing :', listingHash);
+  
+                          setTimeout(() => {
+                            this.setState({loadingStatus:1})
+                            this.setState({mintingStatus:1})
+                            this.setState({finalMessage:`Property has been uploaded and listed successfully. ${listingHash}`})
+                        }, 2000);
+  
+                        });
 
-                        setTimeout(() => {
-                          this.setState({loadingStatus:1})
-                          this.setState({mintingStatus:1})
-                          this.setState({finalMessage:`Property has been uploaded and listed successfully. ${listingHash}`})
-                      }, 1000);
-
-                      });
+                    }, 1000);
+                      
                     });
 
                   }catch (e) {
@@ -345,9 +365,9 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                                   <td>
                                     Location
                                   </td>
-                                  <td>
+                                  {/* <td>
                                     Actions
-                                  </td>
+                                  </td> */}
                                 </tr>
 
                                 {this.state.marketProperties}

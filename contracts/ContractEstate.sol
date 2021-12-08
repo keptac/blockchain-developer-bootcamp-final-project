@@ -82,4 +82,22 @@ contract ContractEstate is ERC721URIStorage, Ownable {
         return properties;
     }
 
+     /// @notice returns all NFT available
+    /// @return nftProperty[] The array containing the tokenId, owner and tokenURI of the NFT owned by the caller    
+    function getAllProperties() public view returns(propertyNft[] memory) {
+        uint totalPropertyCount = _tokenCounter;
+        uint currentIndex = 0;
+
+        propertyNft[] memory properties = new propertyNft[](totalPropertyCount);
+
+        for (uint i = 0; i < totalPropertyCount; i++) {
+ 
+                properties[currentIndex] = propertyNftData[counterToDeed[i]];
+                currentIndex += 1;
+    
+        }
+
+        return properties;
+    }
+
 }
