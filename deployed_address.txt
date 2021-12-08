@@ -1,10 +1,10 @@
 Network: Rinkeby 
 https://rinkeby.etherscan.io/
 
-SmartProperty Contract Address = '0x53445af90Ee64eF5313BCe4b92f2038382d33B4F'
-https://rinkeby.etherscan.io/address/0x53445af90Ee64eF5313BCe4b92f2038382d33B4F
+SmartProperty Contract Address = '0x3b3839199d8be84F1F36665237d627290152463F'
+https://rinkeby.etherscan.io/address/0x3b3839199d8be84F1F36665237d627290152463F
 
-ContractEstate Contract Address = '0x983338642B4102A5F9B9FC3Ffd41D9f16e6a4354'
-https://rinkeby.etherscan.io/address/0x983338642B4102A5F9B9FC3Ffd41D9f16e6a4354
+ContractEstate Contract Address = '0xB1Eb461d59F008ba7b13603c4D71Ff0110fE86D6'
+https://rinkeby.etherscan.io/address/0xB1Eb461d59F008ba7b13603c4D71Ff0110fE86D6
 
  

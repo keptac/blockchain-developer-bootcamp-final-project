@@ -50,6 +50,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
       try {
         // let allProperties = await this.state.contractEstate.methods.getUserProperties().call()
         let allProperties = await this.state.smartPropertyMarket.methods.getPropertiesOwnedByCustomer().call()
+        // let allProperties = await this.state.smartPropertyMarket.methods.getAllProperties().call()
         console.log(allProperties);
         
         let myProperties = [];

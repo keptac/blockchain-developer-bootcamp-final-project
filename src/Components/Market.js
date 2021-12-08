@@ -51,7 +51,7 @@ import ItemThumb from './ItemThumb';
 
   render() {
   return (
-    <div className="row">
+    <div className="row distance">
       {this.state.marketProperties}
     </div>
   );}

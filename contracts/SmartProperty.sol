@@ -119,11 +119,11 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     /// @return Property[] All the properties owned by the customer
     function getPropertiesOwnedByCustomer() public view returns(Property[] memory) {
         
-        uint propertyCount = _propertyListingId.current();
-        uint numberOfProperties = 0;
-        uint currentIndex = 0;
+        uint256 propertyCount = _propertyListingId.current();
+        uint256 numberOfProperties = 0;
+        uint256 currentIndex = 0;
 
-        for (uint i = 0; i < propertyCount; i++) {
+        for (uint256 i = 0; i < propertyCount; i++) {
             if (!propertyData[i].sold && propertyData[i].seller == msg.sender) { //OR WHEN THE SOLD IS STILL FALSE THEN 
                 numberOfProperties += 1;
             }
@@ -135,22 +135,43 @@ contract SmartProperty is Ownable, ReentrancyGuard {
 
         Property[] memory customerProperties = new Property[](numberOfProperties);
 
-        for (uint i = 0; i < propertyCount; i++) {
+        for (uint256 i = 0; i < propertyCount; i++) {
             if (!propertyData[i].sold && propertyData[i].seller == msg.sender){
-                uint currentId = i;
-                customerProperties[currentIndex] = propertyData[currentId];
+                uint256 currentId = i;
+                Property storage currentItem = propertyData[currentId];
+                customerProperties[currentIndex] = currentItem;
                 currentIndex += 1;
             }
 
             if (propertyData[i].sold && propertyData[i].buyer == msg.sender){
-                uint currentId = i;
-                customerProperties[currentIndex] = propertyData[currentId];
+                uint256 currentId = i;
+                Property storage currentItem = propertyData[currentId];
+                customerProperties[currentIndex] = currentItem;
                 currentIndex += 1;
             }
         }
 
         return customerProperties;
     }
+
+    /// @notice Finds all properties.
+    /// @return Property[] All the marketplace properties
+    function getAllProperties() public view returns(Property[] memory) {
+        uint256 numberOfProperties = _propertyListingId.current();
+        uint256 currentIndex = 0;
+
+        Property[] memory availableProperties = new Property[](numberOfProperties);
+        
+        for(uint256 i = 0; i < numberOfProperties; i++) {
+                uint256 currentId = i;
+                Property storage currentItem = propertyData[currentId];
+                availableProperties[currentIndex] = currentItem;
+                currentIndex += 1;
+        }
+
+        return availableProperties;
+    }
+
 
     /// @notice Finds all available properties. i.e properties still available for buying.
     /// @return Property[] All the unsold marketplace properties
@@ -177,7 +198,7 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     ///@param propertyListingId is the property ID on the market
     ///@param userAddress is the current owner of the property
     ///@return bool if the userAddress is the owner of the properties
-    function verifyPropertyOwnership(uint propertyListingId, address userAddress) public view returns(bool){
+    function verifyPropertyOwnership(uint256 propertyListingId, address userAddress) public view returns(bool){
         if (propertyData[propertyListingId].sold  && propertyData[propertyListingId].buyer == userAddress){
             return true;
         }else if (!propertyData[propertyListingId].sold  && propertyData[propertyListingId].seller == userAddress){
@@ -198,9 +219,9 @@ contract SmartProperty is Ownable, ReentrancyGuard {
     /// @param deedNumber property deed
     /// @return Property Details
     function findPropertyByDeed(uint256 deedNumber) public view returns(Property memory) {
-        uint positionIndex;
-        uint propertyCount = _propertyListingId.current();
-        for (uint i = 0; i < propertyCount; i++) {
+        uint256 positionIndex;
+        uint256 propertyCount = _propertyListingId.current();
+        for (uint256 i = 0; i < propertyCount; i++) {
             if (propertyData[i].deedNumber == deedNumber) {
                 positionIndex = i;
             }
