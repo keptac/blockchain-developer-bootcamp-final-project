@@ -236,7 +236,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                             this.setState({loadingStatus:1})
                             this.setState({mintingStatus:1})
                             this.setState({finalMessage:`Property has been uploaded and listed successfully. ${listingHash}`})
-                        }, 2000);
+                        }, 7000);
   
                         });
 
