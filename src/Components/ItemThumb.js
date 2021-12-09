@@ -85,6 +85,7 @@ const ItemThumb = ({metadataUri, listingId}) => {
         <br/>
         <button type="submit" className="btn btn-warning btn-block btn-lg" onClick={async (event)  => {
               event.preventDefault()
+              console.log(marketAddress);
 
               alert("You are about to make a purchase. You will be redirected to authorise transaction");
             try{

@@ -2,13 +2,11 @@ import React, { Component } from 'react';
 import SmartProperty from '../abis/SmartProperty.json';
 import ContractEstate from '../abis/ContractEstate.json';
 import Loader from 'react-loader-spinner';
-import { Box, Image } from 'react-bulma-components';
 
 import styled from 'styled-components';
 import {
   Link
 } from "react-router-dom";
-import ItemThumb from '../Components/ItemThumb';
 
 const StyledLink = styled(Link)`
   color: #4a4a4a;
