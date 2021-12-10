@@ -92,16 +92,29 @@ const ItemThumb = ({metadataUri, listingId}) => {
         <button type="submit" className="btn btn-warning btn-block btn-lg" onClick={async (event)  => {
               event.preventDefault()
               console.log(marketAddress);
-
               setShow(!show);
               setDialogTitle('Payment');
               setMessage('You are about to make a purchase. You will be redirected to authorise transaction');
 
                 try{
-                  await smartPropertyMarket.methods.sellPropertytoBuyer(listingId,  nftAddress).send({ from: account, value: window.web3.utils.toWei(price, 'Ether') }).on('transactionHash', async (listingHash) => {
-                    setShow(!show);
-                    setDialogTitle('Payment Successful');
-                    setMessage(`Transaction completed reference: \n\n${listingHash}`);
+                  await smartPropertyMarket.methods.sellPropertytoBuyer(listingId,  nftAddress).send({ from: account, value: window.web3.utils.toWei(price, 'Ether') }).on('transactionHash', async (hash) => {
+
+                    await window.web3.eth.getTransactionReceipt(hash).then(async(result)=>{
+                      console.log();
+
+                      if(result!=null && result.status){
+                        setShow(true);
+                        setDialogTitle('Payment Successful');
+                        setMessage(`Transaction completed reference. : \n\n${hash}`);
+                      }else{
+                        setShow(true);
+                        setDialogTitle('Transaction Submitted');
+                        setMessage(`Transaction submitted.`);
+                      }
+                    })
+                   
+
+                    
                   })
                 }catch (e) {
                   var startString = '"reason":';

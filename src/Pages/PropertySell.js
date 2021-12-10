@@ -90,6 +90,13 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                           </div>
                      
                       </td>
+                      <td>
+                        <div className="td-text">
+                        {singleProperty.sold===true?"OWNER":"LISTED"}
+                        </div>
+                        
+                      </td>
+       
 
                       {/* <td>
                       <div className="td-text2">
@@ -192,56 +199,70 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                 Array.from(event.target).forEach((e) => (e.value = ""));
 
                 this.setState({txMessage:'Uploading files to IPFS'});
+
                 try {
-                  
-                  const url = await client.add(imageLocation);
-                  const uploadedImageUrl = `https://ipfs.infura.io/ipfs/${url.path}`;
+                  const propertyExists = await this.state.contractEstate.methods.checkIfPropertyExists(deed).call()
+                  if(propertyExists){
+                    this.setState({txMessage:'Property with title deed number is already minted'});
+                    this.setState({finalMessage:'Property with title deed number is already minted'})
+                  }else{
+                                  try {
+                                    
+                                    const url = await client.add(imageLocation);
+                                    const uploadedImageUrl = `https://ipfs.infura.io/ipfs/${url.path}`;
 
-                  const metadata = {
-                    deed:deed,
-                    location: location,
-                    description:description,
-                    image: uploadedImageUrl,
-                    propertySize:propertySize,
-                    price:price
-                  };
+                                    const metadata = {
+                                      deed:deed,
+                                      location: location,
+                                      description:description,
+                                      image: uploadedImageUrl,
+                                      propertySize:propertySize,
+                                      price:price
+                                    };
 
-                  const metadataRes = await client.add(JSON.stringify(metadata));
-                  const tokenURI = `https://ipfs.infura.io/ipfs/${metadataRes.path}`;
-                  this.setState({txMessage:`Minting token ${tokenURI}\n\n ...`});
+                                    const metadataRes = await client.add(JSON.stringify(metadata));
+                                    const tokenURI = `https://ipfs.infura.io/ipfs/${metadataRes.path}`;
+                                    this.setState({txMessage:`Minting token ${tokenURI}\n\n ...`});
 
-                  try {
-                    await this.state.contractEstate.methods.createPropertyNft(tokenURI, price, deed).send({from:this.state.account}).on('transactionHash', async (hash) => {
-                      console.log('Minting :', hash);
+                                    try {
+                                      await this.state.contractEstate.methods.createPropertyNft(tokenURI, price, deed).send({from:this.state.account}).on('transactionHash', async (hash) => {
+                                        console.log('Minting :', hash);
+
+                                      setTimeout(async () => {  
+                                        this.setState({txMessage:'Processing(Minting) please wait...'});
+                                      }, 10000);
+                                        
+                                          setTimeout(async () => {
+                                            this.setState({txMessage:'Listing. Pending Second Authorization...'});
+                                            await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.contractAddress ).send({from:this.state.account}).on('transactionHash', async (listingHash) => {
+                                              console.log('Listing :', listingHash);
                       
-                      this.setState({txMessage:'Processing(Minting) please wait...'});
-                      setTimeout(async () => {
-                        setTimeout(async () => {
-                          this.setState({txMessage:'Listing. Pending Second Authorization...'});
-                          await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.contractAddress ).send({from:this.state.account}).on('transactionHash', async (listingHash) => {
-                            console.log('Listing :', listingHash);
-    
-                            setTimeout(() => {
-                              this.setState({loadingStatus:1})
-                              this.setState({mintingStatus:1})
-                              this.setState({finalMessage:`Property has been uploaded and listed successfully. ${listingHash}`})
-                          }, 3000);
-                        },10000);
-                        });
-                    }, 1000);
-                      
-                    });
+                                              setTimeout(() => {
+                                                this.setState({loadingStatus:1})
+                                                this.setState({mintingStatus:1})
+                                                this.setState({finalMessage:`Property has been uploaded and listed successfully. ${listingHash}`})
+                                            }, 3000);
+                                          },10000);
+                                          });
+                                      });
+                                    }catch (e) {
+                                      this.setState({txMessage:'An error occured while minting'});
+                                      this.setState({finalMessage:'An error occured while minting'})
+                                      console.log("error uploading to minting NFT ", e);
+                                    }
+                                  } catch (e) {
+                                    this.setState({txMessage:'An error occured while uploading files to IPFS'});
+                                      this.setState({finalMessage:'An error occured while uploading files to IPFS'})
+                                      console.log("error uploading to IPFS ", e);
+                                    }
+                  }
 
-                  }catch (e) {
-                    this.setState({txMessage:'An error occured while minting'});
-                    this.setState({finalMessage:'An error occured while minting'})
-                    console.log("error uploading to minting NFT ", e);
-                  }
-                } catch (e) {
-                  this.setState({txMessage:'An error occured while uploading files to IPFS'});
-                    this.setState({finalMessage:'An error occured while uploading files to IPFS'})
-                    console.log("error uploading to IPFS ", e);
-                  }
+                }catch (e) {
+                  this.setState({txMessage:'An error occured while minting'});
+                  this.setState({finalMessage:'An error occured while minting'})
+                  console.log("error uploading to minting NFT ", e);
+                }
+              
               }}>
 
           <div className="row mb-4">  
@@ -352,6 +373,9 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                                   </td>
                                   <td>
                                     Location
+                                  </td>
+                                  <td>
+                                    Status
                                   </td>
                                   {/* <td>
                                     Actions
