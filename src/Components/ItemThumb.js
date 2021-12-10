@@ -4,6 +4,8 @@ import { Box, Image } from 'react-bulma-components';
 import SmartProperty from '../abis/SmartProperty.json';
 import ContractEstate from '../abis/ContractEstate.json';
 
+import { Button,Modal} from 'react-bootstrap';
+
 
 const Title = styled.h2({
   color: "#242424",
@@ -29,6 +31,9 @@ const ItemThumb = ({metadataUri, listingId}) => {
 
   const [nftAddress, setNftAddress] = useState('');
   const [marketAddress, setMarketAddress] = useState('');
+  const [show, setShow] = useState(false);
+  const [message, setMessage] = useState('');
+  const [dialogTitle, setDialogTitle] = useState('');
 
   const getMetadata = async () => {
     try {
@@ -70,6 +75,7 @@ const ItemThumb = ({metadataUri, listingId}) => {
   }, [getMetadata, loadBlockchainData]);
 
   return (
+    <>
       <Box>
         <Image 
           src={`${imageUrl}`}
@@ -87,24 +93,59 @@ const ItemThumb = ({metadataUri, listingId}) => {
               event.preventDefault()
               console.log(marketAddress);
 
-              alert("You are about to make a purchase. You will be redirected to authorise transaction");
-            try{
-              await smartPropertyMarket.methods.sellPropertytoBuyer(listingId,  nftAddress).send({ from: account, value: window.web3.utils.toWei(price, 'Ether') }).on('transactionHash', async (listingHash) => {
-                alert(`Transaction completed reference: \n\n${listingHash}`);
-              })
-            }catch (e) {
-              var startString = '"reason":';
-              var endString = '"},"';
+              setShow(!show);
+              setDialogTitle('Payment');
+              setMessage('You are about to make a purchase. You will be redirected to authorise transaction');
 
-              var mySubString = e.message.substring(
-                e.message.indexOf(startString) + 1, 
-                e.message.lastIndexOf(endString)  ).replace('":"',': ');
+                try{
+                  await smartPropertyMarket.methods.sellPropertytoBuyer(listingId,  nftAddress).send({ from: account, value: window.web3.utils.toWei(price, 'Ether') }).on('transactionHash', async (listingHash) => {
+                    setShow(!show);
+                    setDialogTitle('Payment Successful');
+                    setMessage(`Transaction completed reference: \n\n${listingHash}`);
+                  })
+                }catch (e) {
+                  var startString = '"reason":';
+                  var endString = '"},"';
+    
+                  var mySubString = e.message.substring(
+                    e.message.indexOf(startString) + 1, 
+                    e.message.lastIndexOf(endString)  ).replace('":"',': ');
+    
+                    if(mySubString.length<=0){
+                      mySubString =e.message;
+                    }
+                    setShow(!show);
+                    setDialogTitle('Payment Failed');
+                    setMessage(`${mySubString}`);
+                  console.log("error making a purchase", e.message);
+                } 
               
-              alert(`Transaction Failed with  ${mySubString}`);
-              console.log("error making a purchase", e.message);
-            } 
-          }}>Buy Property</button>
-      </Box>
+            }}>Buy Property</button>
+
+
+        </Box>
+              <Modal
+              style={{ "z-index": "1500" }}
+              show={show} onHide={()=>setShow(!show)}
+              size="lg"
+              aria-labelledby="contained-modal-title-vcenter"
+              centered
+            >
+            <Modal.Header closeButton>
+              <Modal.Title id="contained-modal-title-vcenter">
+                {dialogTitle}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <p>
+                {message}
+              </p>
+            </Modal.Body>
+            <Modal.Footer>
+            <Button onClick={()=>setShow(!show)}>Ok</Button>  
+            </Modal.Footer>
+          </Modal>
+        </>
   );
 };
 

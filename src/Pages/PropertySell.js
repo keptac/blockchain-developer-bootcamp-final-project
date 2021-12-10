@@ -60,17 +60,8 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
               const metadataUri = await this.state.contractEstate.methods.tokenURI(tokenId).call();
               const res = await fetch(metadataUri);
               const metadata = await res.json();
-
-              console.log("---------->>>>")
-              console.log(allProperties)
-              console.log("---------->>>>")
-            console.log(metadata)
-            console.log("---------->>>>")
             let singleProperty = await this.state.smartPropertyMarket.methods.findPropertyByDeed(metadata.deed).call()
             
-            console.log(singleProperty)
-            console.log("---------->>>>")
-
             if((singleProperty.sold && (singleProperty.buyer === this.state.account)) || (!singleProperty.sold && (singleProperty.seller ===this.state.account)) ){
                 const newItem = (
                   
@@ -147,10 +138,8 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                   );
                 newProperties.push(newItem);
                 this.setState({marketProperties:newProperties})
-                
             }
           });
-
       } catch (err) {
         console.log(err)
       }
@@ -224,20 +213,21 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                   try {
                     await this.state.contractEstate.methods.createPropertyNft(tokenURI, price, deed).send({from:this.state.account}).on('transactionHash', async (hash) => {
                       console.log('Minting :', hash);
-                      this.setState({txMessage:'Pending second authorization...'});
+                      
+                      this.setState({txMessage:'Processing(Minting) please wait...'});
                       setTimeout(async () => {
-     
-                        await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.contractAddress ).send({from:this.state.account}).on('transactionHash', async (listingHash) => {
-                          console.log('Listing :', listingHash);
-  
-                          setTimeout(() => {
-                            this.setState({loadingStatus:1})
-                            this.setState({mintingStatus:1})
-                            this.setState({finalMessage:`Property has been uploaded and listed successfully. ${listingHash}`})
-                        }, 7000);
-  
+                        setTimeout(async () => {
+                          this.setState({txMessage:'Listing. Pending Second Authorization...'});
+                          await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.contractAddress ).send({from:this.state.account}).on('transactionHash', async (listingHash) => {
+                            console.log('Listing :', listingHash);
+    
+                            setTimeout(() => {
+                              this.setState({loadingStatus:1})
+                              this.setState({mintingStatus:1})
+                              this.setState({finalMessage:`Property has been uploaded and listed successfully. ${listingHash}`})
+                          }, 3000);
+                        },10000);
                         });
-
                     }, 1000);
                       
                     });
