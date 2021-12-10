@@ -92,16 +92,20 @@ const ItemThumb = ({metadataUri, listingId}) => {
         <button type="submit" className="btn btn-warning btn-block btn-lg" onClick={async (event)  => {
               event.preventDefault()
               console.log(marketAddress);
-              setShow(!show);
-              setDialogTitle('Payment');
-              setMessage('You are about to make a purchase. You will be redirected to authorise transaction');
 
                 try{
+                const ownership = await smartPropertyMarket.methods.verifyPropertyOwnership(listingId,  account).call();
+                if(ownership){
+                  setShow(true);
+                  setDialogTitle('Payment Stopped');
+                  setMessage('You cannot buy your own property. The selected wallet was used to list the property.');
+                 }else{
+                  setShow(true);
+                  setDialogTitle('Payment');
+                  setMessage('You are about to make a purchase. You will be prompted to authorise the payment with metamask.');
+    
                   await smartPropertyMarket.methods.sellPropertytoBuyer(listingId,  nftAddress).send({ from: account, value: window.web3.utils.toWei(price, 'Ether') }).on('transactionHash', async (hash) => {
-
                     await window.web3.eth.getTransactionReceipt(hash).then(async(result)=>{
-                      console.log();
-
                       if(result!=null && result.status){
                         setShow(true);
                         setDialogTitle('Payment Successful');
@@ -112,10 +116,9 @@ const ItemThumb = ({metadataUri, listingId}) => {
                         setMessage(`Transaction submitted.`);
                       }
                     })
-                   
-
-                    
                   })
+                 }
+
                 }catch (e) {
                   var startString = '"reason":';
                   var endString = '"},"';
@@ -127,7 +130,7 @@ const ItemThumb = ({metadataUri, listingId}) => {
                     if(mySubString.length<=0){
                       mySubString =e.message;
                     }
-                    setShow(!show);
+                    setShow(true);
                     setDialogTitle('Payment Failed');
                     setMessage(`${mySubString}`);
                   console.log("error making a purchase", e.message);
