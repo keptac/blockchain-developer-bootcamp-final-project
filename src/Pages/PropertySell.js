@@ -63,7 +63,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
             let singleProperty = await this.state.smartPropertyMarket.methods.findPropertyByDeed(metadata.deed).call()
             
             if((singleProperty.sold && (singleProperty.buyer === this.state.account)) || (!singleProperty.sold && (singleProperty.seller ===this.state.account)) ){
-                const newItem = (
+                const  newItem = (
                   
                     <tr key={singleProperty.propertyListingId}>
                       <td >
@@ -143,10 +143,15 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                     </tr>
 
                   );
-                newProperties.push(newItem);
-                this.setState({marketProperties:newProperties})
+                  newProperties.push(newItem);
             }
           });
+
+          setTimeout(async () => {  
+            await this.setState({marketProperties:newProperties});
+            await this.setState({loadingProperties:false})
+          },2000);
+          
       } catch (err) {
         console.log(err)
       }
@@ -167,7 +172,8 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
         mintingStatus:null,
         txError:null,
         txMessage:'Processing your transactions',
-        finalMessage:''
+        finalMessage:'',
+        loadingProperties:true
       }
     }
   
@@ -175,7 +181,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
     render() {
     return (
       < div className="row">
-      <div className="col-md-7">
+      <div className="col-md-6">
       <h1 className="col-md-12 distance list-property"><b>List Your New Property For Sale</b></h1>
       <div id="content" className="col-md-12 distance" >
         <div className="card mb-4 " >
@@ -229,9 +235,8 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                                         console.log('Minting :', hash);
 
                                       setTimeout(async () => {  
-                                        this.setState({txMessage:'Processing(Minting) please wait...'});
-                                      }, 10000);
-                                        
+                                        this.setState({txMessage:'Processing please wait...'});
+
                                           setTimeout(async () => {
                                             this.setState({txMessage:'Listing. Pending Second Authorization...'});
                                             await this.state.smartPropertyMarket.methods.listPropertyOnEstateMarket(deed, price, this.state.contractAddress ).send({from:this.state.account}).on('transactionHash', async (listingHash) => {
@@ -240,14 +245,15 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                                               setTimeout(() => {
                                                 this.setState({loadingStatus:1})
                                                 this.setState({mintingStatus:1})
-                                                this.setState({finalMessage:`Property has been uploaded and listed successfully. ${listingHash}`})
-                                            }, 3000);
-                                          },10000);
+                                                this.setState({finalMessage:`Property has been uploaded and listed. ${listingHash}`})
+                                            }, 1000);
+                                          },30000);
                                           });
+                                        }, 5000);
                                       });
                                     }catch (e) {
-                                      this.setState({txMessage:'An error occured while minting'});
-                                      this.setState({finalMessage:'An error occured while minting'})
+                                      this.setState({txMessage:`An error occured while minting: ${e.message}`});
+                                      this.setState({finalMessage:`An error occured while minting ${e.message}`})
                                       console.log("error uploading to minting NFT ", e);
                                     }
                                   } catch (e) {
@@ -329,7 +335,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
       </div>
       </div>
 
-      <div className="col-md-5">
+      <div className="col-md-6">
 
 {this.state.loadingStatus === 0 ? (
 					this.state.mintingStatus === 0 ? (
@@ -352,6 +358,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
 							</div>
 						)
 					) : (
+            
 						<div>
                       <h1 className="col-md-12 distance list-property"><b>My Properties</b></h1>
                       <div id="content" className="col-md-12 distance" >
@@ -359,7 +366,15 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
                             <div className="card-body">
                               <div className="distance">
                                 
-                             
+                              {this.state.loadingProperties ?
+
+                                <Loader
+                                className='flex justify-center items-center pt-12 center-class2'
+                                type='TailSpin'
+                                color='#6B7280'
+                                height={40}
+                                width={40}
+                                />:
                               <table>
                               <tr className="tableHearder">
                                   <td>
@@ -384,7 +399,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
 
                                 {this.state.marketProperties}
                                 
-                              </table>
+                              </table>}
                               </div>
                             </div>
                           </div>
