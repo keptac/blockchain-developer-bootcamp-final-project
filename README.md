@@ -146,6 +146,7 @@ truffle test --network ganache_cli (running on port 8545)
 truffle compile
 
 truffle migrate --reset 
+truffle migrate --network rinkeby
 
 npm start (running react frontend locally)
 ```
